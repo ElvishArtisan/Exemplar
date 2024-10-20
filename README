@@ -1,0 +1,9 @@
+This is the README file for the exemplar package.
+
+This repo is a parking place for common components used in various other
+projects. The following components are tracked here:
+
+'Profile' - C++ class for reading configuration files in 'INI' format.
+            Found in 'src/lib/'.
+
+AutoConf Macros - Found in 'acinclude.m4'

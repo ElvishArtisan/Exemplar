@@ -1,0 +1,16 @@
+;; This buffer is for text that is not saved, and for Lisp evaluation.
+;; To create a file, visit it with C-x C-f and enter text in its buffer.
+
+Configuration value type support in different codebases.
+
+               Rivendell Switchyard  WebHost  GlassCoder PadPoint
+integer            X          X         X         X          X
+string             X          X         X         X          X
+hex                X          X         X         X          X
+float              X          X         X         X          X
+double             X          X         X         X          X
+bool (yes/no)      X          X         X         X          X
+bool (on/off)      X          X         X         X          X
+bool (0/1)                              X         X          X
+time                          X         X         X
+IPv4 address                  X         X         X
