@@ -18,6 +18,8 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
+// EXEMPLAR_VERSION: 1.0.0
+//
 
 #include <QFile>
 #include <QStringList>
@@ -430,10 +432,3 @@ QStringList Profile::unusedLines() const
 
   return ret;
 }
-
-
-QString Profile::version()
-{
-  return QString(VERSION);
-}
-

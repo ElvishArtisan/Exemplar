@@ -18,6 +18,8 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
+// EXEMPLAR_VERSION: 1.0.0
+//
 
 #ifndef SYPROFILE_H
 #define SYPROFILE_H
@@ -95,7 +97,6 @@ class Profile
 			    const QString &default_value="",bool *ok=0);
   void clear();
   QStringList unusedLines() const;
-  static QString version();
 
  private:
   QString profile_source;
