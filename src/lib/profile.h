@@ -1,4 +1,4 @@
-// syprofile.h
+// profile.h
 //
 // Class for reading INI configuration files.
 //
@@ -21,8 +21,8 @@
 // EXEMPLAR_VERSION: 1.0.0
 //
 
-#ifndef SYPROFILE_H
-#define SYPROFILE_H
+#ifndef PROFILE_H
+#define PROFILE_H
 
 #include <vector>
 
@@ -104,4 +104,4 @@ class Profile
 };
 
 
-#endif  // SYPROFILE_H
+#endif  // PROFILE_H
