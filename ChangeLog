@@ -2,3 +2,5 @@
 	* Initial package creation
 2024-10-21 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 1.0.0.
+2024-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Added 'CmdSwitch' class in 'lib/cmdswitch.cpp' and 'lib/cmdswitch.h'.
