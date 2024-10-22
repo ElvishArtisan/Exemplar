@@ -13,3 +13,6 @@
 	* Added tests for 'Profile' using data from QStringList.
 2024-10-22 Fred Gleason <fredg@paravelsystems.com>
 	* Removed dead code from 'Profile'.
+2024-10-22 Fred Gleason <fredg@paravelsystems.com>
+	* Added 'Profile::<type>Values()' methods to permit retrieval of
+	multiple uses of the same parameter in a given section.

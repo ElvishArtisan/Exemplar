@@ -29,18 +29,18 @@ moc_%.cpp:	%.h
 	$(MOC) $< -o $@
 
 tests:	all
-	./v1_tests
+	./profile_tests
 
-bin_PROGRAMS = v1_tests
+bin_PROGRAMS = profile_tests
 
-dist_v1_tests_SOURCES = v1_tests.cpp v1_tests.h
+dist_profile_tests_SOURCES = profile_tests.cpp profile_tests.h
 
-nodist_v1_tests_SOURCES = moc_v1_tests.cpp
+nodist_profile_tests_SOURCES = moc_profile_tests.cpp
 
-v1_tests_LDADD = -lexemplar\
+profile_tests_LDADD = -lexemplar\
                  @QT5_CLI_LIBS@
 
-EXTRA_DIST = v1_tests.dat
+EXTRA_DIST = profile_tests.dat
 
 CLEANFILES = *~\
              *.idb\

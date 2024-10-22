@@ -1,6 +1,6 @@
-// v1_tests.h
+// profile_tests.h
 //
-// v1.x tests for the Profile configurator class.
+// Tests for the Profile configurator class.
 //
 //   (C) Copyright 2024 Fred Gleason <fredg@paravelsystems.com>
 //
@@ -18,14 +18,14 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#ifndef V1_TESTS_H
-#define V1_TESTS_H
+#ifndef PROFILE_TESTS_H
+#define PROFILE_TESTS_H
 
 #include <QObject>
 
 #include <profile.h>
 
-#define V1_TESTS_USAGE "\n\n"
+#define PROFILE_TESTS_USAGE "\n\n"
 
 class MainObject : public QObject
 {
@@ -34,13 +34,18 @@ class MainObject : public QObject
   MainObject();
 
  private:
-  bool RunV1Tests(const QString &desc,Profile *p,
-		  int *pass_ctr,int *fail_ctr) const;
+  bool RunTests(const QString &desc,Profile *p,
+		int *pass_ctr,int *fail_ctr) const;
   void Title(const QString &title) const;
+  bool SingleResult(const QString &title,bool result_ok,
+		    int *pass_ctr,int *fail_ctr) const;
   bool Result(bool state,int *pass_ctr,int *fail_ctr) const;
-  void Result(const QString &title,bool result_ok,bool ok_ok,
+  void Result(const QString &title,bool result_ok,bool found,
 	      int *pass_ctr,int *fail_ctr) const;
+  void DumpList(const QString &title,const QList<int> &list) const;
+  void DumpList(const QString &title,const QList<double> &list) const;
+  void DumpList(const QString &title,const QList<QTime> &list) const;
 };
 
 
-#endif  // V1_TESTS_H
+#endif  // PROFILE_TESTS_H

@@ -51,7 +51,7 @@ bool Profile::setSource(const QString &filename,QString *err_msg)
   FILE *f=NULL;
   char data[1024];
   QString block_name;
-  QMap<QString,QString> block_lines;
+  QMultiMap<QString,QString> block_lines;
   
   if((f=fopen(filename.toUtf8(),"r"))==NULL) {
     if(err_msg!=NULL) {
@@ -60,26 +60,11 @@ bool Profile::setSource(const QString &filename,QString *err_msg)
     return false;
   }
 
+  QStringList values;
   while(fgets(data,1023,f)!=NULL) {
-    QString line=QString::fromUtf8(data).trimmed();
-    if((line.left(1)=="[")&&(line.right(1)=="]")) {  // Block Starts
-      if(!block_name.isEmpty()) {
-	ProcessBlock(block_name,block_lines);
-      }
-      block_name=line.mid(1,line.size()-2);
-      block_lines.clear();
-    }
-    if((!line.isEmpty())&&(line.left(1)!=";")&&(line.left(1)!="#")) {
-      QStringList f0=line.split("=",Qt::KeepEmptyParts);
-      QString tag=f0.at(0);
-      f0.removeFirst();
-      block_lines[tag]=f0.join("=");
-    }
+    values.push_back(QString::fromUtf8(data).trimmed());
   }
-  if(!block_name.isEmpty()) {
-    ProcessBlock(block_name,block_lines);
-  }
-  
+  setSource(values);
   return true;
 }
 
@@ -87,7 +72,7 @@ bool Profile::setSource(const QString &filename,QString *err_msg)
 bool Profile::setSource(const QStringList &values)
 {
   QString block_name;
-  QMap<QString,QString> block_lines;
+  QMultiMap<QString,QString> block_lines;
 
   for(int i=0;i<values.size();i++) {
     QString line=values.at(i);
@@ -102,7 +87,7 @@ bool Profile::setSource(const QStringList &values)
       QStringList f0=line.split("=",Qt::KeepEmptyParts);
       QString tag=f0.at(0);
       f0.removeFirst();
-      block_lines[tag]=f0.join("=");
+      block_lines.insert(tag,f0.join("="));
     }
   }
   if(!block_name.isEmpty()) {
@@ -114,143 +99,216 @@ bool Profile::setSource(const QStringList &values)
 
 
 QString Profile::stringValue(const QString &section,const QString &tag,
-			       const QString &default_str,bool *ok)
+			     const QString &default_str,bool *found)
 {
-  QMap<QString,QString> block=d_blocks.value(section);
-  if(block.size()==0) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
+  QStringList values=stringValues(section,tag);
+  if(found!=NULL) {
+    *found=values.size()>0;
+  }
+  if(values.size()==0) {
     return default_str;
   }
-  if(ok!=NULL) {
-    *ok=block.contains(tag);
+  return values.last();
+}
+
+
+QStringList Profile::stringValues(const QString &section,const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QStringList();
   }
-  return block.value(tag,default_str);
+  return block.value(tag);
 }
 
 
 int Profile::intValue(const QString &section,const QString &tag,
-		       int default_value,bool *ok)
+		      int default_value,bool *found)
 {
-  QMap<QString,QString> block=d_blocks.value(section);
-  if(block.size()==0) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
+  QList<int> values=intValues(section,tag);
+  if(found!=NULL) {
+    *found=values.size()>0;
+  }
+  if(values.size()==0) {
     return default_value;
   }
-  if(ok!=NULL) {
-    *ok=block.contains(tag);
+  return values.last();
+}
+
+
+QList<int> Profile::intValues(const QString &section,const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QList<int>();
   }
-  if(block.contains(tag)) {
-    return block.value(tag).toInt();
+  QList<int> ret;
+  QStringList values=block.value(tag);
+  for(int i=0;i<values.size();i++) {
+    ret.push_back(values.at(i).toInt());
   }
-  return default_value;
+  return ret;
 }
 
 
 int Profile::hexValue(const QString &section,const QString &tag,
-		       int default_value,bool *ok)
+		       int default_value,bool *found)
 {
-  QMap<QString,QString> block=d_blocks.value(section);
-  if(block.size()==0) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
+  QList<int> values=hexValues(section,tag);
+  if(found!=NULL) {
+    *found=values.size()>0;
+  }
+  if(values.size()==0) {
     return default_value;
   }
-  if(ok!=NULL) {
-    *ok=block.contains(tag);
+  return values.last();
+}
+
+
+QList<int> Profile::hexValues(const QString &section,const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QList<int>();
   }
-  if(block.contains(tag)) {
-    return block.value(tag).toInt(NULL,16);
+  QList<int> ret;
+  QStringList values=block.value(tag);
+  for(int i=0;i<values.size();i++) {
+    ret.push_back(values.at(i).toInt(NULL,16));
   }
-  return default_value;
+  return ret;
 }
 
 
 double Profile::doubleValue(const QString &section,const QString &tag,
-			    double default_value,bool *ok)
+			    double default_value,bool *found)
 {
-  QMap<QString,QString> block=d_blocks.value(section);
-  if(block.size()==0) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
+  QList<double> values=doubleValues(section,tag);
+  if(found!=NULL) {
+    *found=values.size()>0;
+  }
+  if(values.size()==0) {
     return default_value;
   }
-  if(ok!=NULL) {
-    *ok=block.contains(tag);
+  return values.last();
+}
+
+
+QList<double> Profile::doubleValues(const QString &section,const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QList<double>();
   }
-  if(block.contains(tag)) {
-    return block.value(tag).toDouble();
+  QList<double> ret;
+  QStringList values=block.value(tag);
+  for(int i=0;i<values.size();i++) {
+    ret.push_back(values.at(i).toDouble());
   }
-  return default_value;
+  return ret;
 }
 
 
 bool Profile::boolValue(const QString &section,const QString &tag,
-			 bool default_value,bool *ok)
+			 bool default_value,bool *found)
 {
-  QMap<QString,QString> block=d_blocks.value(section);
-  if(block.size()==0) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
+  QList<bool> values=boolValues(section,tag);
+  if(found!=NULL) {
+    *found=values.size()>0;
+  }
+  if(values.size()==0) {
     return default_value;
   }
-  if(ok!=NULL) {
-    *ok=block.contains(tag);
+  return values.last();
+}
+
+
+QList<bool> Profile::boolValues(const QString &section,const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QList<bool>();
   }
-  if(block.contains(tag)) {
-    return (block.value(tag).toLower()=="yes")||
-      (block.value(tag).toLower()=="true")||
-      (block.value(tag).toLower()=="on")||
-      (block.value(tag).toLower()=="1");
+  QList<bool> ret;
+  QStringList values=block.value(tag);
+  for(int i=0;i<values.size();i++) {
+    ret.push_back((values.at(i).toLower()=="yes")||
+		  (values.at(i).toLower()=="true")||
+		  (values.at(i).toLower()=="on")||
+		  (values.at(i).toLower()=="1"));
   }
-  return default_value;
+  return ret;
 }
 
 
 QTime Profile::timeValue(const QString &section,const QString &tag,
-			   const QTime &default_value,bool *ok)
+			   const QTime &default_value,bool *found)
 {
-  QMap<QString,QString> block=d_blocks.value(section);
-  if(block.size()==0) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
+  QList<QTime> values=timeValues(section,tag);
+  if(found!=NULL) {
+    *found=values.size()>0;
+  }
+  if(values.size()==0) {
     return default_value;
   }
-  if(ok!=NULL) {
-    *ok=block.contains(tag);
+  return values.last();
+}
+
+
+QList<QTime> Profile::timeValues(const QString &section,const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QList<QTime>();
   }
-  if(block.contains(tag)) {
-    QStringList fields=block.value(tag).split(":");
+  QList<QTime> ret;
+  QStringList values=block.value(tag);
+  for(int i=0;i<values.size();i++) {
+    QStringList fields=values.at(i).split(":");
     if(fields.size()==2) {
-      return QTime(fields[0].toInt(),fields[1].toInt(),0);
+      ret.push_back(QTime(fields.at(0).toInt(),fields.at(1).toInt(),0));
     }
-    if(fields.size()==3) {
-      return QTime(fields[0].toInt(),fields[1].toInt(),fields[2].toInt());
+    else {
+      if(fields.size()==3) {
+	ret.push_back(QTime(fields.at(0).toInt(),fields.at(1).toInt(),
+			    fields.at(2).toInt()));
+      }
+      else {
+	ret.push_back(QTime());
+      }
     }
-    return QTime();
   }
-  return default_value;
+  return ret;
 }
 
 
 QHostAddress Profile::addressValue(const QString &section,const QString &tag,
-				   const QHostAddress &default_value,bool *ok)
+				  const QHostAddress &default_value,bool *found)
 {
-  return QHostAddress(stringValue(section,tag,default_value.toString(),ok));
+  return QHostAddress(stringValue(section,tag,default_value.toString(),found));
 }
 
 
 QHostAddress Profile::addressValue(const QString &section,const QString &tag,
-				     const QString &default_value,bool *ok)
+				     const QString &default_value,bool *found)
 {
-  return addressValue(section,tag,QHostAddress(default_value),ok);
+  return addressValue(section,tag,QHostAddress(default_value),found);
+}
+
+
+QList<QHostAddress> Profile::addressValues(const QString &section,
+					   const QString &tag)
+{
+  QMap<QString,QStringList> block=d_blocks.value(section);
+  if(block.size()==0) {
+    return QList<QHostAddress>();
+  }
+  QList<QHostAddress> ret;
+  QStringList values=block.value(tag);
+  for(int i=0;i<values.size();i++) {
+    ret.push_back(QHostAddress(values.at(i)));
+  }
+  return ret;
 }
 
 
@@ -261,8 +319,48 @@ void Profile::clear()
 }
 
 
-void Profile::ProcessBlock(const QString &name,
-			   const QMap<QString,QString> &lines)
+QString Profile::dump() const
 {
-  d_blocks[name]=lines;
+  QString ret;
+  
+  for(QMap<QString,QMap<QString,QStringList> >::const_iterator it0=
+	d_blocks.begin();it0!=d_blocks.end();it0++) {
+    ret+=QString::asprintf("[%s]\n",it0.key().toUtf8().constData());
+    for(QMap<QString,QStringList>::const_iterator it1=it0.value().begin();
+	it1!=it0.value().end();it1++) {
+      for(int i=0;i<it1.value().size();i++) {
+	ret+=QString::asprintf("%s=%s\n",it1.key().toUtf8().constData(),
+			       it1.value().at(i).toUtf8().constData());
+      }
+    }
+    ret+="\n";
+  }
+
+  return ret;
+}
+
+
+void Profile::ProcessBlock(const QString &name,
+			   const QMultiMap<QString,QString> &lines)
+{
+  QMap<QString,QStringList> block=
+    d_blocks.value(name,QMap<QString,QStringList>());
+
+  for(QMultiMap<QString,QString>::const_iterator it=lines.begin();it!=lines.end();
+      it++) {
+    block[it.key()].push_back(it.value());
+  }
+  d_blocks[name]=block;
+}
+
+
+QStringList Profile::InvertList(const QStringList &list) const
+{
+  QStringList ret;
+
+  for(int i=0;i<list.size();i++) {
+    ret.push_back(list.at(list.size()-i-1));
+  }
+  
+  return ret;
 }

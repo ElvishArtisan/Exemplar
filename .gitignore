@@ -1,11 +1,16 @@
 *~
+*.buildinfo
+*.changes
 *.deb
 *.ddeb
+*.dsc
 *.la
 *.lo
 *.o
 *.rpm
 *.spec
+*.tar.gz
+*.tar.xz
 .deps
 .libs
 aclocal.m4
@@ -29,4 +34,4 @@ Makefile
 Makefile.in
 missing
 moc_*
-src/tests/v1_tests
+src/tests/profile_tests
