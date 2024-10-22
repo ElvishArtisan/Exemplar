@@ -1,8 +1,8 @@
-// syprofile.cpp
+// profile.cpp
 //
 // A container class for profile lines.
 //
-// (C) Copyright 2013,2016 Fred Gleason <fredg@paravelsystems.com>
+// (C) Copyright 2013-2024 Fred Gleason <fredg@paravelsystems.com>
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of version 2.1 of the GNU Lesser General Public
@@ -19,131 +19,13 @@
 //    Boston, MA  02111-1307  USA
 //
 
+#include <stdio.h>
+
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
 
 #include "profile.h"
-
-ProfileLine::ProfileLine()
-{
-  clear();
-}
-
-
-QString ProfileLine::tag() const
-{
-  return line_tag;
-}
-
-
-void ProfileLine::setTag(QString tag)
-{
-  line_tag=tag;
-}
-
-
-QString ProfileLine::value() const
-{
-  return line_value;
-}
-
-
-void ProfileLine::setValue(QString value)
-{
-  line_value=value;
-}
-
-
-bool ProfileLine::used() const
-{
-  return line_used;
-}
-
-
-void ProfileLine::setUsed(bool state)
-{
-  line_used=state;
-}
-
-
-void ProfileLine::clear()
-{
-  line_tag="";
-  line_value="";
-  line_used=false;
-}
-
-
-ProfileSection::ProfileSection()
-{
-  clear();
-}
-
-
-QString ProfileSection::name() const
-{
-  return section_name;
-}
-
-
-void ProfileSection::setName(QString name)
-{
-  section_name=name;
-}
-
-
-bool ProfileSection::getValue(QString tag,QString *value) const
-{
-  for(unsigned i=0;i<section_line.size();i++) {
-    if(section_line[i].tag()==tag) {
-      *value=section_line[i].value();
-      return true;
-    }
-  }
-  return false;
-}
-
-
-void ProfileSection::setValueUsed(QString tag,bool state)
-{
-  for(unsigned i=0;i<section_line.size();i++) {
-    if(section_line[i].tag()==tag) {
-      section_line[i].setUsed(state);
-      return;
-    }
-  }  
-}
-
-
-void ProfileSection::addValue(QString tag,QString value)
-{
-  section_line.push_back(ProfileLine());
-  section_line.back().setTag(tag);
-  section_line.back().setValue(value);
-}
-
-
-void ProfileSection::clear()
-{
-  section_name="";
-  section_line.resize(0);
-}
-
-
-QStringList ProfileSection::unusedLines() const
-{
-  QStringList ret;
-
-  for(unsigned i=0;i<section_line.size();i++) {
-    if(!section_line.at(i).used()) {
-      ret.push_back(section_line.at(i).tag()+"="+section_line.at(i).value());
-    }
-  }
-
-  return ret;
-}
-
 
 Profile::Profile()
 {
@@ -152,15 +34,7 @@ Profile::Profile()
 
 QStringList Profile::sectionNames() const
 {
-  QStringList names;
-
-  for(unsigned i=0;i<profile_section.size();i++) {
-    if(!profile_section.at(i).name().isEmpty()) {
-      names.push_back(profile_section.at(i).name());
-    }
-  }
-
-  return names;
+  return d_blocks.keys();
 }
 
 
@@ -170,43 +44,44 @@ QString Profile::source() const
 }
 
 
-bool Profile::setSource(const QString &filename)
+bool Profile::setSource(const QString &filename,QString *err_msg)
 {
-  QString section;
-  int offset;
-
-  profile_source=filename;
-  profile_section.resize(0);
-  profile_section.push_back(ProfileSection());
-  profile_section.back().setName("");
-  QFile *file=new QFile(filename);
-  if(!file->open(QIODevice::ReadOnly)) {
-    delete file;
+  FILE *f=NULL;
+  char data[1024];
+  QString block_name;
+  QMap<QString,QString> block_lines;
+  
+  if((f=fopen(filename.toUtf8(),"r"))==NULL) {
+    if(err_msg!=NULL) {
+      *err_msg=strerror(errno);
+    }
     return false;
   }
-  QTextStream *text=new QTextStream(file);
-  QString line=text->readLine().trimmed();
-  while(!line.isNull()) {
-    if((line.left(1)!=";")&&(line.left(1)!="#")) {
-      if((line.left(1)=="[")&&(line.right(1)=="]")) {
-	section=line.mid(1,line.length()-2);
-	profile_section.push_back(ProfileSection());
-	profile_section.back().setName(section);
+
+  while(fgets(data,1023,f)!=NULL) {
+    QString line=QString::fromUtf8(data).trimmed();
+    if((line.left(1)=="[")&&(line.right(1)=="]")) {  // Block Starts
+      if(!block_name.isEmpty()) {
+	ProcessBlock(block_name,block_lines);
       }
-      else if(((offset=line.indexOf('='))!=-1)) {
-	profile_section.back().
-	  addValue(line.left(offset),
-		   line.right(line.length()-offset-1).trimmed());
-      }
+      block_name=line.mid(1,line.size()-2);
+      block_lines.clear();
     }
-    line=text->readLine().trimmed();
+    if((!line.isEmpty())&&(line.left(1)!=";")&&(line.left(1)!="#")) {
+      QStringList f0=line.split("=",Qt::KeepEmptyParts);
+      QString tag=f0.at(0);
+      f0.removeFirst();
+      block_lines[tag]=f0.join("=");
+    }
   }
-  delete text;
-  delete file;
+  if(!block_name.isEmpty()) {
+    ProcessBlock(block_name,block_lines);
+  }
+  
   return true;
 }
 
-
+/*
 bool Profile::setSource(std::vector<QString> *values)
 {
   QString section;
@@ -230,6 +105,36 @@ bool Profile::setSource(std::vector<QString> *values)
       }
     }
   }
+
+  return true;
+}
+*/
+
+bool Profile::setSource(const QStringList &values)
+{
+  QString block_name;
+  QMap<QString,QString> block_lines;
+
+  for(int i=0;i<values.size();i++) {
+    QString line=values.at(i);
+    if((line.left(1)=="[")&&(line.right(1)=="]")) {  // Block Starts
+      if(!block_name.isEmpty()) {
+	ProcessBlock(block_name,block_lines);
+      }
+      block_name=line.mid(1,line.size()-2);
+      block_lines.clear();
+    }
+    if((!line.isEmpty())&&(line.left(1)!=";")&&(line.left(1)!="#")) {
+      QStringList f0=line.split("=",Qt::KeepEmptyParts);
+      QString tag=f0.at(0);
+      f0.removeFirst();
+      block_lines[tag]=f0.join("=");
+    }
+  }
+  if(!block_name.isEmpty()) {
+    ProcessBlock(block_name,block_lines);
+  }
+  
   return true;
 }
 
@@ -237,132 +142,98 @@ bool Profile::setSource(std::vector<QString> *values)
 QString Profile::stringValue(const QString &section,const QString &tag,
 			       const QString &default_str,bool *ok)
 {
-  QString result;
-
-  for(unsigned i=0;i<profile_section.size();i++) {
-    if(profile_section[i].name()==section) {
-      if(profile_section[i].getValue(tag,&result)) {
-	if(ok!=NULL) {
-	  *ok=true;
-	}
-	profile_section[i].setValueUsed(tag,true);
-	return result;
-      }
-      if(ok!=NULL) {
-	*ok=false;
-      }
-      return default_str;
+  QMap<QString,QString> block=d_blocks.value(section);
+  if(block.size()==0) {
+    if(ok!=NULL) {
+      *ok=false;
     }
+    return default_str;
   }
   if(ok!=NULL) {
-    *ok=false;
+    *ok=block.contains(tag);
   }
-  return default_str;
+  return block.value(tag,default_str);
 }
 
 
 int Profile::intValue(const QString &section,const QString &tag,
 		       int default_value,bool *ok)
 {
-  bool valid;
-
-  int result=stringValue(section,tag).toInt(&valid,10);
-  if(!valid) {
+  QMap<QString,QString> block=d_blocks.value(section);
+  if(block.size()==0) {
     if(ok!=NULL) {
       *ok=false;
     }
     return default_value;
   }
   if(ok!=NULL) {
-    *ok=true;
+    *ok=block.contains(tag);
   }
-  return result;
+  if(block.contains(tag)) {
+    return block.value(tag).toInt();
+  }
+  return default_value;
 }
 
 
 int Profile::hexValue(const QString &section,const QString &tag,
 		       int default_value,bool *ok)
 {
-  bool valid;
-
-  int result=stringValue(section,tag).toInt(&valid,16);
-  if(!valid) {
+  QMap<QString,QString> block=d_blocks.value(section);
+  if(block.size()==0) {
     if(ok!=NULL) {
       *ok=false;
     }
     return default_value;
   }
   if(ok!=NULL) {
-    *ok=true;
+    *ok=block.contains(tag);
   }
-  return result;
-}
-
-
-float Profile::floatValue(const QString &section,const QString &tag,
-			   float default_value,bool *ok)
-{
-  bool valid;
-
-  float result=stringValue(section,tag).toDouble(&valid);
-  if(!valid) {
-    if(ok!=NULL) {
-      *ok=false;
-    }
-    return default_value;
+  if(block.contains(tag)) {
+    return block.value(tag).toInt(NULL,16);
   }
-  if(ok!=NULL) {
-    *ok=true;
-  }
-  return result;
+  return default_value;
 }
 
 
 double Profile::doubleValue(const QString &section,const QString &tag,
 			    double default_value,bool *ok)
 {
-  bool valid;
-
-  double result=stringValue(section,tag).toDouble(&valid);
-  if(!valid) {
+  QMap<QString,QString> block=d_blocks.value(section);
+  if(block.size()==0) {
     if(ok!=NULL) {
       *ok=false;
     }
     return default_value;
   }
   if(ok!=NULL) {
-    *ok=true;
+    *ok=block.contains(tag);
   }
-  return result;
+  if(block.contains(tag)) {
+    return block.value(tag).toDouble();
+  }
+  return default_value;
 }
 
 
 bool Profile::boolValue(const QString &section,const QString &tag,
 			 bool default_value,bool *ok)
 {
-  bool valid;
-
-  QString str=stringValue(section,tag,"",&valid).toLower();
-  if(!valid) {
+  QMap<QString,QString> block=d_blocks.value(section);
+  if(block.size()==0) {
     if(ok!=NULL) {
       *ok=false;
     }
     return default_value;
   }
-  if((str=="yes")||(str=="true")||(str=="on")||(str=="1")) {
-    if(ok!=NULL) {
-      *ok=true;
-    }
-    return true;
-  }
-  if((str=="no")||(str=="false")||(str=="off")||(str=="0")) {
-    if(ok!=NULL) {
-      *ok=true;
-    }
-    return false;
-  }
   if(ok!=NULL) {
-    *ok=false;
+    *ok=block.contains(tag);
+  }
+  if(block.contains(tag)) {
+    return (block.value(tag).toLower()=="yes")||
+      (block.value(tag).toLower()=="true")||
+      (block.value(tag).toLower()=="on")||
+      (block.value(tag).toLower()=="1");
   }
   return default_value;
 }
@@ -371,30 +242,32 @@ bool Profile::boolValue(const QString &section,const QString &tag,
 QTime Profile::timeValue(const QString &section,const QString &tag,
 			   const QTime &default_value,bool *ok)
 {
-  QStringList fields;
-  bool ok1=false;
-  QString str=stringValue(section,tag,"",&ok1);
-  QTime ret(default_value);
-
-  if(ok1) {
-    fields=str.split(":");
-    if(fields.size()==2) {
-      ok1=ret.setHMS(fields[0].toInt(),fields[1].toInt(),0);
+  QMap<QString,QString> block=d_blocks.value(section);
+  if(block.size()==0) {
+    if(ok!=NULL) {
+      *ok=false;
     }
-    if(fields.size()==3) {
-      ok1=ret.setHMS(fields[0].toInt(),fields[1].toInt(),fields[2].toInt());
-    }
+    return default_value;
   }
   if(ok!=NULL) {
-    *ok=ok1;
+    *ok=block.contains(tag);
   }
-  
-  return ret;
+  if(block.contains(tag)) {
+    QStringList fields=block.value(tag).split(":");
+    if(fields.size()==2) {
+      return QTime(fields[0].toInt(),fields[1].toInt(),0);
+    }
+    if(fields.size()==3) {
+      return QTime(fields[0].toInt(),fields[1].toInt(),fields[2].toInt());
+    }
+    return QTime();
+  }
+  return default_value;
 }
 
 
 QHostAddress Profile::addressValue(const QString &section,const QString &tag,
-				     const QHostAddress &default_value,bool *ok)
+				   const QHostAddress &default_value,bool *ok)
 {
   return QHostAddress(stringValue(section,tag,default_value.toString(),ok));
 }
@@ -410,30 +283,12 @@ QHostAddress Profile::addressValue(const QString &section,const QString &tag,
 void Profile::clear()
 {
   profile_source="";
-  profile_section.resize(0);
+  d_blocks.clear();
 }
 
 
-QStringList Profile::unusedLines() const
+void Profile::ProcessBlock(const QString &name,
+			   const QMap<QString,QString> &lines)
 {
-  QStringList ret;
-
-  for(unsigned i=0;i<profile_section.size();i++) {
-    QStringList lines=profile_section.at(i).unusedLines();
-    if(lines.size()>0) {
-      ret.push_back("["+profile_section.at(i).name()+"]");
-      for(int j=0;j<lines.size();j++) {
-	ret.push_back(lines.at(j));
-      }
-    }
-  }
-
-  return ret;
+  d_blocks[name]=lines;
 }
-
-
-QString Profile::version()
-{
-  return QString(VERSION);
-}
-

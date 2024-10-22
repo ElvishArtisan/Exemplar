@@ -34,6 +34,8 @@ class MainObject : public QObject
   MainObject();
 
  private:
+  bool RunV1Tests(const QString &desc,Profile *p,
+		  int *pass_ctr,int *fail_ctr) const;
   void Title(const QString &title) const;
   bool Result(bool state,int *pass_ctr,int *fail_ctr) const;
   void Result(const QString &title,bool result_ok,bool ok_ok,

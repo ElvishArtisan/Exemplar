@@ -28,14 +28,62 @@
 MainObject::MainObject()
   : QObject()
 {
+  int total_pass=0;
+  int total_fail=0;
+  char data[1024];
+  QStringList lines;
+
+  //
+  // From File
+  //
+  QString err_msg;
+  Profile *p=new Profile();
+  if(!p->setSource("v1_tests.dat",&err_msg)) {
+    fprintf(stderr,"v1_tests: failed to open test data [%s]\n",
+	    err_msg.toUtf8().constData());
+    exit(1);
+  }
+  RunV1Tests("From File",p,&total_pass,&total_fail);
+  delete p;
+  printf("\n");
+  
+  //
+  // From QStringList
+  //
+  FILE *f;
+  if((f=fopen("v1_tests.dat","r"))==NULL) {
+    fprintf(stderr,"v1_tests: failed to open test data [%s]\n",strerror(errno));
+    exit(1);
+  }
+  while(fgets(data,1023,f)!=NULL) {
+    lines.push_back(QString::fromUtf8(data).trimmed());
+  }
+  fclose(f);
+  p=new Profile();
+  p->setSource(lines);
+  RunV1Tests("From QStringList",p,&total_pass,&total_fail);
+  delete p;
+  printf("\n");
+  
+  printf("TOTAL TEST RESULTS\n");
+  printf("%d / %d total tests passed\n",total_pass,total_pass+total_fail);
+  
+  if(total_fail>0) {
+    exit(1);
+  }
+  exit(0);
+}
+
+
+bool MainObject::RunV1Tests(const QString &desc,Profile *p,
+			    int *pass_ctr,int *fail_ctr) const
+{
+  bool ok=false;
   int pass=0;
   int fail=0;
-  bool ok=false;
   bool result_ok=false;
-  Profile *p=new Profile();
-  p->setSource("v1_tests.dat");
-
-  printf("**** v1.x Tests... ****\n");
+  
+  printf("**** v1.x Tests (%s)... ****\n",desc.toUtf8().constData());
 
   result_ok=p->stringValue("Tests","StringValue","Not this string!",&ok)==
 			   "This is a string!";
@@ -53,12 +101,7 @@ MainObject::MainObject()
   Result("Hex Found",result_ok,ok==true,&pass,&fail);
   result_ok=p->hexValue("Tests","HexMissing",4321,&ok)==4321;
   Result("Hex Missing",result_ok,ok==false,&pass,&fail);
-  /*
-  result_ok=p->floatValue("Tests","FloatValue",2.71,&ok)==3.14;
-  Result("Float Found",result_ok,ok==true,&pass,&fail);
-  result_ok=p->floatValue("Tests","FloatMissing",2.71,&ok)==2.71;
-  Result("Float Missing",result_ok,ok==false,&pass,&fail);
-  */
+
   result_ok=p->doubleValue("Tests","DoubleValue",2.71,&ok)==3.1415928;
   Result("Double Found",result_ok,ok==true,&pass,&fail);
   result_ok=p->doubleValue("Tests","DoubleMissing",2.71,&ok)==2.71;
@@ -137,12 +180,12 @@ MainObject::MainObject()
 
   //printf("RES: %10.8f\n",p->floatValue("Tests","FloatValue",2.71,&ok));
 
-  printf("\n");
   printf("%d / %d tests passed\n",pass,pass+fail);
-  if(fail>0) {
-    exit(1);
-  }
-  exit(0);
+
+  *pass_ctr+=pass;
+  *fail_ctr+=fail;
+  
+  return fail==0;
 }
 
 
