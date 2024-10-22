@@ -38,7 +38,6 @@ class Profile
   QStringList sectionNames() const;
   QString source() const;
   bool setSource(const QString &filename,QString *err_msg=NULL);
-  //  bool setSource(std::vector<QString> *values);
   bool setSource(const QStringList &values);
   QString stringValue(const QString &section,const QString &tag,
 		      const QString &default_value="",bool *ok=0);

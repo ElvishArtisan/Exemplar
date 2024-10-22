@@ -83,34 +83,6 @@ bool Profile::setSource(const QString &filename,QString *err_msg)
   return true;
 }
 
-/*
-bool Profile::setSource(std::vector<QString> *values)
-{
-  QString section;
-  int offset;
-
-  profile_section.resize(0);
-  profile_section.push_back(ProfileSection());
-  profile_section.back().setName("");
-  for(unsigned i=0;i<values->size();i++) {
-    if((values->at(i).left(1)!=";")&&(values->at(i).left(1)!="#")) {
-      if((values->at(i).left(1)=="[")&&(values->at(i).right(1)=="]")) {
-	section=values->at(i).mid(1,values->at(i).length()-2);
-	profile_section.push_back(ProfileSection());
-	profile_section.back().setName(section);
-      }
-      else if(((offset=values->at(i).indexOf('='))!=-1)) {
-	profile_section.back().
-	  addValue(values->at(i).left(offset),
-		   values->at(i).right(values->at(i).length()-offset-1).
-		   trimmed());
-      }
-    }
-  }
-
-  return true;
-}
-*/
 
 bool Profile::setSource(const QStringList &values)
 {

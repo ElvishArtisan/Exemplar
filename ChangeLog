@@ -11,3 +11,5 @@
 2024-10-22 Fred Gleason <fredg@paravelsystems.com>
 	* Refactored 'Profile'.
 	* Added tests for 'Profile' using data from QStringList.
+2024-10-22 Fred Gleason <fredg@paravelsystems.com>
+	* Removed dead code from 'Profile'.
