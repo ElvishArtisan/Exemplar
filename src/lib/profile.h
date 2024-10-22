@@ -1,4 +1,4 @@
-// syprofile.h
+// profile.h
 //
 // Class for reading INI configuration files.
 //
@@ -18,9 +18,11 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
+// EXEMPLAR_VERSION: 1.0.1
+//
 
-#ifndef SYPROFILE_H
-#define SYPROFILE_H
+#ifndef PROFILE_H
+#define PROFILE_H
 
 #include <QHostAddress>
 #include <QList>
@@ -64,4 +66,4 @@ class Profile
 };
 
 
-#endif  // SYPROFILE_H
+#endif  // PROFILE_H

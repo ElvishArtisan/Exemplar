@@ -1,5 +1,13 @@
 2024-10-20 Fred Gleason <fredg@paravelsystems.com>
 	* Initial package creation
+2024-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.0.0.
+2024-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Added 'CmdSwitch' class in 'lib/cmdswitch.cpp' and 'lib/cmdswitch.h'.
+2024-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed extraneous 'Sy' prefix in 'src/lib/profile.h'.
+2024-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented package version to 1.0.1.
 2024-10-22 Fred Gleason <fredg@paravelsystems.com>
 	* Refactored 'Profile'.
 	* Added tests for 'Profile' using data from QStringList.

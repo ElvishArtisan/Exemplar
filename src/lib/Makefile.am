@@ -27,7 +27,8 @@ moc_%.cpp:	%.h
 	$(MOC) $< -o $@
 
 lib_LTLIBRARIES = libexemplar.la
-dist_libexemplar_la_SOURCES = profile.cpp profile.h
+dist_libexemplar_la_SOURCES = cmdswitch.cpp cmdswitch.h\
+                              profile.cpp profile.h
 
 libexemplar_la_LDFLAGS = -release $(VERSION)
 
