@@ -68,8 +68,10 @@ class Profile
   QString dump() const;
 
  private:
+  //  void ProcessBlock(const QString &name,
+  //		    const QMultiMap<QString,QString> &lines);
   void ProcessBlock(const QString &name,
-		    const QMultiMap<QString,QString> &lines);
+		    const QMap<QString,QStringList> &lines);
   QStringList InvertList(const QStringList &list) const;
   QString profile_source;
   QMap<QString,QMap<QString,QStringList> > d_blocks;

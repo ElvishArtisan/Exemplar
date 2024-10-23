@@ -77,8 +77,8 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
   strings.push_back("of their country!");
   result_ok=(p->stringValues("Tests","StringValue")==strings);
   SingleResult("String Multi-Value",result_ok,&pass,&fail);
-  //  DumpList("Test Data",strings);
-  //  DumpList("Result",p->stringValues("Tests","StringValue"));
+  DumpList("Test Data",strings);
+  DumpList("Result",p->stringValues("Tests","StringValue"));
   
   result_ok=p->intValue("Tests","IntegerValue",4321,&ok)==1234;
   Result("Integer Found",result_ok,ok==true,&pass,&fail);

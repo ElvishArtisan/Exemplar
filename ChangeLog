@@ -19,3 +19,6 @@
 2024-10-23 Fred Gleason <fredg@paravelsystems.com>
 	* Modified 'Profile' to return multiple uses of the same parameter
 	in the same order as they are encountered in the configuration file.
+2024-10-23 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in 'Profile' that caused parameters from diverse
+	sections to be combined in the incorrect order.

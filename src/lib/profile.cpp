@@ -72,7 +72,7 @@ bool Profile::setSource(const QString &filename,QString *err_msg)
 bool Profile::setSource(const QStringList &values)
 {
   QString block_name;
-  QMultiMap<QString,QString> block_lines;
+  QMap<QString,QStringList> block_lines;
 
   for(int i=0;i<values.size();i++) {
     QString line=values.at(i);
@@ -87,7 +87,9 @@ bool Profile::setSource(const QStringList &values)
       QStringList f0=line.split("=",Qt::KeepEmptyParts);
       QString tag=f0.at(0);
       f0.removeFirst();
-      block_lines.insert(tag,f0.join("="));
+      QStringList f1=block_lines.value(tag,QStringList());
+      f1.push_back(f0.join("="));
+      block_lines[tag]=f1;
     }
   }
   if(!block_name.isEmpty()) {
@@ -341,14 +343,14 @@ QString Profile::dump() const
 
 
 void Profile::ProcessBlock(const QString &name,
-			   const QMultiMap<QString,QString> &lines)
+			   const QMap<QString,QStringList> &lines)
 {
   QMap<QString,QStringList> block=
     d_blocks.value(name,QMap<QString,QStringList>());
 
-  for(QMultiMap<QString,QString>::const_iterator it=lines.begin();it!=lines.end();
-      it++) {
-    block[it.key()].push_front(it.value());
+  for(QMap<QString,QStringList>::const_iterator it=lines.begin();
+      it!=lines.end();it++) {
+    block[it.key()].append(it.value());
   }
   d_blocks[name]=block;
 }

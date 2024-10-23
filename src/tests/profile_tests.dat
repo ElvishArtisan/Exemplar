@@ -1,8 +1,6 @@
 [Tests]
 StringValue=Now is the time
 StringValue=for all good men
-StringValue=to come to the aid
-StringValue=of their country!
 IntegerValue=1234
 IntegerValue=2345
 IntegerValue=3456
@@ -69,3 +67,15 @@ IpAddressValidValue=6.7.8.9
 IpAddressValidValue=7.8.9.10
 IpAddressInvalidValue=256.2.3.4
 IpAddressInvalidValue=256.256.3.4
+
+[Random]
+SomeRandomEntry=Foo
+
+[Tests]
+StringValue=to come to the aid
+
+[Random]
+SomeOtherRandomEntry=Bar
+
+[Tests]
+StringValue=of their country!
