@@ -16,3 +16,6 @@
 2024-10-22 Fred Gleason <fredg@paravelsystems.com>
 	* Added 'Profile::<type>Values()' methods to permit retrieval of
 	multiple uses of the same parameter in a given section.
+2024-10-23 Fred Gleason <fredg@paravelsystems.com>
+	* Modified 'Profile' to return multiple uses of the same parameter
+	in the same order as they are encountered in the configuration file.

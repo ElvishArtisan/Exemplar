@@ -71,22 +71,24 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
 			   "Not this string!";
   Result("String Missing",result_ok,ok==false,&pass,&fail);
   QStringList strings;
-  strings.push_back("of their country!");
-  strings.push_back("to come to the aid");
-  strings.push_back("for all good men");
   strings.push_back("Now is the time");
+  strings.push_back("for all good men");
+  strings.push_back("to come to the aid");
+  strings.push_back("of their country!");
   result_ok=(p->stringValues("Tests","StringValue")==strings);
   SingleResult("String Multi-Value",result_ok,&pass,&fail);
+  //  DumpList("Test Data",strings);
+  //  DumpList("Result",p->stringValues("Tests","StringValue"));
   
   result_ok=p->intValue("Tests","IntegerValue",4321,&ok)==1234;
   Result("Integer Found",result_ok,ok==true,&pass,&fail);
   result_ok=p->intValue("Tests","IntegerMissing",4321,&ok)==4321;
   Result("Integer Missing",result_ok,ok==false,&pass,&fail);
   QList<int> ints;
-  ints.push_back(4567);
-  ints.push_back(3456);
-  ints.push_back(2345);
   ints.push_back(1234);
+  ints.push_back(2345);
+  ints.push_back(3456);
+  ints.push_back(4567);
   result_ok=(p->intValues("Tests","IntegerValue")==ints);
   SingleResult("Integer Multi-Value",result_ok,&pass,&fail);
   
@@ -102,14 +104,12 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
   result_ok=p->doubleValue("Tests","DoubleMissing",2.71,&ok)==2.71;
   Result("Double Missing",result_ok,ok==false,&pass,&fail);
   QList<double> doubles;
-  doubles.push_back(12.5663712);
-  doubles.push_back(9.4247784);
-  doubles.push_back(6.2831856);
   doubles.push_back(3.1415928);
+  doubles.push_back(6.2831856);
+  doubles.push_back(9.4247784);
+  doubles.push_back(12.5663712);
   result_ok=(p->doubleValues("Tests","DoubleValue")==doubles);
   SingleResult("Double Multi-Value",result_ok,&pass,&fail);
-  //  DumpList("Test Data",doubles);
-  //  DumpList("Result",p->doubleValues("Tests","DoubleValue"));
   
   result_ok=p->boolValue("Tests","BoolYesValue",false,&ok)==true;
   Result("BoolYes Found",result_ok,ok==true,&pass,&fail);
@@ -117,8 +117,8 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
   Result("BoolYes Missing",result_ok,ok==false,&pass,&fail);
   QList<bool> on_bools;
   on_bools.push_back(true);
-  on_bools.push_back(true);
   on_bools.push_back(false);
+  on_bools.push_back(true);
   on_bools.push_back(true);
   result_ok=(p->boolValues("Tests","BoolYesValue")==on_bools);
   SingleResult("BoolYes Multi-Value",result_ok,&pass,&fail);
@@ -129,8 +129,8 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
   Result("BoolNo Missing",result_ok,ok==false,&pass,&fail);
   QList<bool> off_bools;
   off_bools.push_back(false);
-  off_bools.push_back(false);
   off_bools.push_back(true);
+  off_bools.push_back(false);
   off_bools.push_back(false);
   result_ok=(p->boolValues("Tests","BoolNoValue")==off_bools);
   SingleResult("BoolNo Multi-Value",result_ok,&pass,&fail);
@@ -184,10 +184,10 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
     QTime(10,45,0);
   Result("TimeHHMMMorning Missing",result_ok,ok==false,&pass,&fail);
   QList<QTime> times;
-  times.push_back(QTime(12,30,0));
-  times.push_back(QTime(11,30,0));
-  times.push_back(QTime(10,30,0));
   times.push_back(QTime(9,30,0));
+  times.push_back(QTime(10,30,0));
+  times.push_back(QTime(11,30,0));
+  times.push_back(QTime(12,30,0));
   result_ok=(p->timeValues("Tests","TimeHHMMMorningValue")==times);
   SingleResult("TimeHHMMMorning Multi-Value",result_ok,&pass,&fail);
 
@@ -198,10 +198,10 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
     QTime(22,15,0);
   Result("TimeHHMMEvening Missing",result_ok,ok==false,&pass,&fail);
   times.clear();
-  times.push_back(QTime(23,45,0));
-  times.push_back(QTime(23,30,0));
-  times.push_back(QTime(22,15,0));
   times.push_back(QTime(21,30,0));
+  times.push_back(QTime(22,15,0));
+  times.push_back(QTime(23,30,0));
+  times.push_back(QTime(23,45,0));
   result_ok=(p->timeValues("Tests","TimeHHMMEveningValue")==times);
   SingleResult("TimeHHMMEvening Multi-Value",result_ok,&pass,&fail);
   //  DumpList("Test Data",times);
@@ -215,10 +215,10 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
     QTime(10,45,45);
   Result("TimeHHMMSSMorning Missing",result_ok,ok==false,&pass,&fail);
   times.clear();
-  times.push_back(QTime(11,45,45));
-  times.push_back(QTime(11,30,45));
-  times.push_back(QTime(10,30,45));
   times.push_back(QTime(9,30,45));
+  times.push_back(QTime(10,30,45));
+  times.push_back(QTime(11,30,45));
+  times.push_back(QTime(11,45,45));
   result_ok=(p->timeValues("Tests","TimeHHMMSSMorningValue")==times);
   SingleResult("TimeHHMMSSMorning Multi-Value",result_ok,&pass,&fail);
 
@@ -230,10 +230,10 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
     QTime(10,45,45);
   Result("TimeHHMMSSEvening Missing",result_ok,ok==false,&pass,&fail);
   times.clear();
-  times.push_back(QTime(23,30,45));
-  times.push_back(QTime(22,30,45));
-  times.push_back(QTime(22,30,45));
   times.push_back(QTime(21,30,45));
+  times.push_back(QTime(22,30,45));
+  times.push_back(QTime(22,30,45));
+  times.push_back(QTime(23,30,45));
   result_ok=(p->timeValues("Tests","TimeHHMMSSEveningValue")==times);
   SingleResult("TimeHHMMSSEvening Multi-Value",result_ok,&pass,&fail);
 
@@ -252,10 +252,10 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
 			    "4.3.2.1",&ok)==QHostAddress("4.3.2.1");
   Result("IpAddress Missing (QString Default)",result_ok,ok==false,&pass,&fail);
   QList<QHostAddress> addrs;
-  addrs.push_back(QHostAddress("7.8.9.10"));
-  addrs.push_back(QHostAddress("6.7.8.9"));
-  addrs.push_back(QHostAddress("5.6.7.8"));
   addrs.push_back(QHostAddress("1.2.3.4"));
+  addrs.push_back(QHostAddress("5.6.7.8"));
+  addrs.push_back(QHostAddress("6.7.8.9"));
+  addrs.push_back(QHostAddress("7.8.9.10"));
   result_ok=(p->addressValues("Tests","IpAddressValidValue")==addrs);
   SingleResult("IpAddress Multi-Value",result_ok,&pass,&fail);
 
@@ -315,6 +315,15 @@ void MainObject::Result(const QString &title,bool result_ok,bool found,
 
   Title(title+" Found Result");
   Result(found,pass_ctr,fail_ctr);
+}
+
+
+void MainObject::DumpList(const QString &title,const QStringList &list) const
+{
+  printf("%s\n",title.toUtf8().constData());
+  for(int i=0;i<list.size();i++) {
+    printf("[%d]: %s\n",i,list.at(i).toUtf8().constData());
+  }
 }
 
 

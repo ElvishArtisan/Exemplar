@@ -42,6 +42,7 @@ class MainObject : public QObject
   bool Result(bool state,int *pass_ctr,int *fail_ctr) const;
   void Result(const QString &title,bool result_ok,bool found,
 	      int *pass_ctr,int *fail_ctr) const;
+  void DumpList(const QString &title,const QStringList &list) const;
   void DumpList(const QString &title,const QList<int> &list) const;
   void DumpList(const QString &title,const QList<double> &list) const;
   void DumpList(const QString &title,const QList<QTime> &list) const;

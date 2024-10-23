@@ -108,7 +108,7 @@ QString Profile::stringValue(const QString &section,const QString &tag,
   if(values.size()==0) {
     return default_str;
   }
-  return values.last();
+  return values.first();
 }
 
 
@@ -132,7 +132,7 @@ int Profile::intValue(const QString &section,const QString &tag,
   if(values.size()==0) {
     return default_value;
   }
-  return values.last();
+  return values.first();
 }
 
 
@@ -161,7 +161,7 @@ int Profile::hexValue(const QString &section,const QString &tag,
   if(values.size()==0) {
     return default_value;
   }
-  return values.last();
+  return values.first();
 }
 
 
@@ -190,7 +190,7 @@ double Profile::doubleValue(const QString &section,const QString &tag,
   if(values.size()==0) {
     return default_value;
   }
-  return values.last();
+  return values.first();
 }
 
 
@@ -219,7 +219,7 @@ bool Profile::boolValue(const QString &section,const QString &tag,
   if(values.size()==0) {
     return default_value;
   }
-  return values.last();
+  return values.first();
 }
 
 
@@ -251,7 +251,7 @@ QTime Profile::timeValue(const QString &section,const QString &tag,
   if(values.size()==0) {
     return default_value;
   }
-  return values.last();
+  return values.first();
 }
 
 
@@ -348,7 +348,7 @@ void Profile::ProcessBlock(const QString &name,
 
   for(QMultiMap<QString,QString>::const_iterator it=lines.begin();it!=lines.end();
       it++) {
-    block[it.key()].push_back(it.value());
+    block[it.key()].push_front(it.value());
   }
   d_blocks[name]=block;
 }
