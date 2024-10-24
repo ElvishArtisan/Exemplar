@@ -20,12 +20,12 @@
 ##
 ## Use automake to process this into a Makefile.in
 
-EXTRA_DIST = unified1.conf\
-             unified2.conf\
-             unified3.conf\
-             unified4.conf\
-             profile_tests_no_section_ids.dat\
-             profile_tests_section_ids.dat
+EXTRA_DIST = extended.conf\
+             extended_part1.conf\
+             extended_part2.conf\
+             extended_part3.conf\
+             extended_part4.conf\
+             legacy.conf
 
 CLEANFILES = *~\
              *.idb\

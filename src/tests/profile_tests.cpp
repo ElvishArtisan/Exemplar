@@ -34,35 +34,35 @@ MainObject::MainObject()
   QString err_msg;
   QStringList err_msgs;
   
-  printf("**** Section IDs Disabled ****\n");
+  printf("**** Legacy Format ****\n");
   Profile *p=new Profile();
-  if(!p->loadFile("../../fixtures/profile_tests_no_section_ids.dat",&err_msg)) {
+  if(!p->loadFile("../../fixtures/legacy.conf",&err_msg)) {
     fprintf(stderr,"profile_tests: failed to open test data [%s]\n",
 	    err_msg.toUtf8().constData());
     exit(1);
   }
-  RunTestsNoSectionIds(p,&total_pass,&total_fail);
+  RunLegacyTests(p,&total_pass,&total_fail);
   delete p;
   printf("\n");
 
-  printf("**** Section IDs Enabled ****\n");
+  printf("**** Extended Format ****\n");
   p=new Profile(true);
-  if(!p->loadFile("../../fixtures/profile_tests_section_ids.dat",&err_msg)) {
+  if(!p->loadFile("../../fixtures/extended.conf",&err_msg)) {
     fprintf(stderr,"profile_tests: failed to open test data [%s]\n",
 	    err_msg.toUtf8().constData());
     exit(1);
   }
-  RunTestsSectionIds(p,&total_pass,&total_fail);
+  RunExtendedTests(p,&total_pass,&total_fail);
   delete p;
   printf("\n");
 
   printf("**** Unified Directory ****\n");
   p=new Profile();
-  p->loadDirectory("../../fixtures","unified*.conf",&err_msgs);
+  p->loadDirectory("../../fixtures","extended_part*.conf",&err_msgs);
   for(int i=0;i<err_msgs.size();i++) {
     fprintf(stderr," Error: %s\n",err_msgs.at(i).toUtf8().constData());
   }
-  RunTestsNoSectionIds(p,&total_pass,&total_fail);
+  RunLegacyTests(p,&total_pass,&total_fail);
   printf("\n");
 
   printf("%d / %d tests passed\n",total_pass,total_pass+total_fail);
@@ -74,8 +74,7 @@ MainObject::MainObject()
 }
 
 
-bool MainObject::RunTestsNoSectionIds(Profile *p,
-				      int *pass_ctr,int *fail_ctr) const
+bool MainObject::RunLegacyTests(Profile *p,int *pass_ctr,int *fail_ctr) const
 {
   bool ok=false;
   int pass=0;
@@ -284,8 +283,7 @@ bool MainObject::RunTestsNoSectionIds(Profile *p,
 }
 
 
-bool MainObject::RunTestsSectionIds(Profile *p,
-				    int *pass_ctr,int *fail_ctr) const
+bool MainObject::RunExtendedTests(Profile *p,int *pass_ctr,int *fail_ctr) const
 {
   int pass=0;
   int fail=0;
