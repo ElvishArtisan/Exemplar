@@ -31,17 +31,18 @@ moc_%.cpp:	%.h
 tests:	all
 	./profile_tests
 
-bin_PROGRAMS = profile_tests
+bin_PROGRAMS = dump_profile\
+               profile_tests
 
-dist_profile_tests_SOURCES = profile_tests.cpp profile_tests.h
-
-nodist_profile_tests_SOURCES = moc_profile_tests.cpp
-
-profile_tests_LDADD = -lexemplar\
+dist_dump_profile_SOURCES = dump_profile.cpp dump_profile.h
+nodist_dump_profile_SOURCES = moc_dump_profile.cpp
+dump_profile_LDADD = -lexemplar\
                  @QT5_CLI_LIBS@
 
-EXTRA_DIST = profile_tests_no_section_ids.dat\
-             profile_tests_section_ids.dat
+dist_profile_tests_SOURCES = profile_tests.cpp profile_tests.h
+nodist_profile_tests_SOURCES = moc_profile_tests.cpp
+profile_tests_LDADD = -lexemplar\
+                 @QT5_CLI_LIBS@
 
 CLEANFILES = *~\
              *.idb\

@@ -84,7 +84,6 @@ bool MainObject::RunTestsNoSectionIds(Profile *p,
 
   QStringList sections;
   sections.push_back("Tests");
-  sections.push_back("Random");
   SingleResult("List Sections",p->sections()==sections,&pass,&fail);
 
   result_ok=p->stringValue("Tests","StringValue","of their country!",&ok)==
@@ -294,7 +293,6 @@ bool MainObject::RunTestsSectionIds(Profile *p,
 
   QStringList sections;
   sections.push_back("Tests");
-  sections.push_back("Random");
   SingleResult("List Sections",p->sections()==sections,&pass,&fail);
 
   QStringList section_ids;

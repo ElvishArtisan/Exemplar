@@ -65,13 +65,15 @@ bool Profile::addSource(const QStringList &values)
       block_name=line.mid(1,line.size()-2);
       block_lines.clear();
     }
-    if((!line.isEmpty())&&(line.left(1)!=";")&&(line.left(1)!="#")) {
-      QStringList f0=line.split("=",Qt::KeepEmptyParts);
-      QString tag=f0.at(0);
-      f0.removeFirst();
-      QStringList f1=block_lines.value(tag,QStringList());
-      f1.push_back(f0.join("="));
-      block_lines[tag]=f1;
+    else {
+      if((!line.isEmpty())&&(line.left(1)!=";")&&(line.left(1)!="#")) {
+	QStringList f0=line.split("=",Qt::KeepEmptyParts);
+	QString tag=f0.at(0);
+	f0.removeFirst();
+	QStringList f1=block_lines.value(tag,QStringList());
+	f1.push_back(f0.join("="));
+	block_lines[tag]=f1;
+      }
     }
   }
   if(!block_name.isEmpty()) {
@@ -570,23 +572,25 @@ QString Profile::dump() const
 void Profile::ProcessBlock(const QString &name,
 			   const QMap<QString,QStringList> &lines)
 {
-  QMap<QString,QStringList> block=
-    d_blocks.value(name,QMap<QString,QStringList>());
+  if(!lines.isEmpty()) {
+    QMap<QString,QStringList> block=
+      d_blocks.value(name,QMap<QString,QStringList>());
 
-  for(QMap<QString,QStringList>::const_iterator it=lines.begin();
-      it!=lines.end();it++) {
-    block[it.key()].append(it.value());
-  }
-  if(d_use_section_ids) {
-    QStringList ids=lines.value("Id");
-    QString id=__PROFILE_DEFAULT_SECTION_ID;
-    if(ids.size()>0) {
-      id=ids.first();
+    for(QMap<QString,QStringList>::const_iterator it=lines.begin();
+	it!=lines.end();it++) {
+      block[it.key()].append(it.value());
     }
-    d_blocks[name+__PROFILE_SECTION_ID_DELIMITER+id]=block;
-  }
-  else {
-    d_blocks[name]=block;
+    if(d_use_section_ids) {
+      QStringList ids=lines.value("Id");
+      QString id=__PROFILE_DEFAULT_SECTION_ID;
+      if(ids.size()>0) {
+	id=ids.first();
+      }
+      d_blocks[name+__PROFILE_SECTION_ID_DELIMITER+id]=block;
+    }
+    else {
+      d_blocks[name]=block;
+    }
   }
 }
 

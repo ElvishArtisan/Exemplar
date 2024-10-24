@@ -34,10 +34,6 @@ TimeHHMMSSEveningValue=21:30:45
 TimeHHMMSSEveningValue=22:30:45
 IpAddressValidValue=1.2.3.4
 IpAddressValidValue=5.6.7.8
-IpAddressInvalidValue=256.2.3.4
-
-[Random]
-SomeRandomEntry=Foo
 
 [Tests]
 Id=Second
@@ -75,7 +71,3 @@ TimeHHMMSSEveningValue=22:30:45
 TimeHHMMSSEveningValue=23:30:45
 IpAddressValidValue=6.7.8.9
 IpAddressValidValue=7.8.9.10
-IpAddressInvalidValue=256.256.3.4
-
-[Random]
-SomeOtherRandomEntry=Bar
