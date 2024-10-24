@@ -40,7 +40,8 @@ nodist_profile_tests_SOURCES = moc_profile_tests.cpp
 profile_tests_LDADD = -lexemplar\
                  @QT5_CLI_LIBS@
 
-EXTRA_DIST = profile_tests.dat
+EXTRA_DIST = profile_tests_no_section_ids.dat\
+             profile_tests_section_ids.dat
 
 CLEANFILES = *~\
              *.idb\

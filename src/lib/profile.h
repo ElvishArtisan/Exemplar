@@ -34,47 +34,64 @@
 class Profile
 {
  public:
-  Profile();
+  Profile(bool use_section_ids=false);
   QStringList sectionNames() const;
   QString source() const;
   bool setSource(const QString &filename,QString *err_msg=NULL);
   bool setSource(const QStringList &values);
+  QStringList sections() const;
+  QStringList sectionIds(const QString &section) const;
   QString stringValue(const QString &section,const QString &tag,
 		      const QString &default_value="",bool *found=0);
   QStringList stringValues(const QString &section,const QString &tag);
+  QStringList stringValues(const QString &section,const QString &section_id,
+			   const QString &tag) const;
   int intValue(const QString &section,const QString &tag,
 	       int default_value=0,bool *found=0);
   QList<int> intValues(const QString &section,const QString &tag);
+  QList<int> intValues(const QString &section,const QString &section_id,
+		       const QString &tag);
   int hexValue(const QString &section,const QString &tag,
 	       int default_value=0,bool *found=0);
   QList<int> hexValues(const QString &section,const QString &tag);
+  QList<int> hexValues(const QString &section,const QString &section_id,
+		       const QString &tag);
   double doubleValue(const QString &section,const QString &tag,
 		    double default_value=0.0,bool *found=0);
   QList<double> doubleValues(const QString &section,const QString &tag);
+  QList<double> doubleValues(const QString &section,const QString &section_id,
+			     const QString &tag);
   bool boolValue(const QString &section,const QString &tag,
 		 bool default_value=false,bool *found=0);
   QList<bool> boolValues(const QString &section,const QString &tag);
+  QList<bool> boolValues(const QString &section,const QString &section_id,
+			 const QString &tag);
   QTime timeValue(const QString &section,const QString &tag,
 		  const QTime &default_value=QTime(),bool *found=0);
   QList<QTime> timeValues(const QString &section,const QString &tag);
+  QList<QTime> timeValues(const QString &section,const QString &section_id,
+			  const QString &tag);
   QHostAddress addressValue(const QString &section,const QString &tag,
 			    const QHostAddress &default_value=QHostAddress(),
 			    bool *found=0);
   QHostAddress addressValue(const QString &section,const QString &tag,
 			    const QString &default_value="",bool *found=0);
   QList<QHostAddress> addressValues(const QString &section,const QString &tag);
+  QList<QHostAddress> addressValues(const QString &section,
+				    const QString &section_id,
+				    const QString &tag);
 
   void clear();
   QString dump() const;
 
  private:
-  //  void ProcessBlock(const QString &name,
-  //		    const QMultiMap<QString,QString> &lines);
   void ProcessBlock(const QString &name,
 		    const QMap<QString,QStringList> &lines);
   QStringList InvertList(const QStringList &list) const;
+  void DumpList(const QString &title,const QStringList &list) const;
   QString profile_source;
   QMap<QString,QMap<QString,QStringList> > d_blocks;
+  bool d_use_section_ids;
 };
 
 

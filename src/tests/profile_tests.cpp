@@ -33,22 +33,36 @@ MainObject::MainObject()
   QStringList lines;
 
   //
-  // From File
+  // Disabled Section IDs
   //
   QString err_msg;
   Profile *p=new Profile();
-  if(!p->setSource("profile_tests.dat",&err_msg)) {
+  if(!p->setSource("profile_tests_no_section_ids.dat",&err_msg)) {
     fprintf(stderr,"profile_tests: failed to open test data [%s]\n",
 	    err_msg.toUtf8().constData());
     exit(1);
   }
-  //printf("%s\n",p->dump().toUtf8().constData());
-  //exit(0);
-
-  RunTests("From File",p,&total_pass,&total_fail);
+  printf("**** Section IDs Disabled ****\n");
+  RunTestsNoSectionIds(p,&total_pass,&total_fail);
   delete p;
   printf("\n");
-  
+
+  //
+  // Enabled Section IDs
+  //
+  p=new Profile(true);
+  printf("**** Section IDs Enabled ****\n");
+  if(!p->setSource("profile_tests_section_ids.dat",&err_msg)) {
+    fprintf(stderr,"profile_tests: failed to open test data [%s]\n",
+	    err_msg.toUtf8().constData());
+    exit(1);
+  }
+  RunTestsSectionIds(p,&total_pass,&total_fail);
+  delete p;
+  printf("\n");
+
+  printf("%d / %d tests passed\n",total_pass,total_pass+total_fail);
+
   if(total_fail>0) {
     exit(1);
   }
@@ -56,14 +70,21 @@ MainObject::MainObject()
 }
 
 
-bool MainObject::RunTests(const QString &desc,Profile *p,
-			  int *pass_ctr,int *fail_ctr) const
+bool MainObject::RunTestsNoSectionIds(Profile *p,
+				      int *pass_ctr,int *fail_ctr) const
 {
   bool ok=false;
   int pass=0;
   int fail=0;
   bool result_ok=false;
-  
+
+  QStringList sections;
+  sections.push_back("Tests");
+  sections.push_back("Random");
+  SingleResult("List Sections",p->sections()==sections,&pass,&fail);
+  //  DumpList("Test Data",sections);
+  //  DumpList("Result",p->sections());
+
   result_ok=p->stringValue("Tests","StringValue","of their country!",&ok)==
 			   "Now is the time";
   Result("String Found",result_ok,ok==true,&pass,&fail);
@@ -77,8 +98,6 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
   strings.push_back("of their country!");
   result_ok=(p->stringValues("Tests","StringValue")==strings);
   SingleResult("String Multi-Value",result_ok,&pass,&fail);
-  DumpList("Test Data",strings);
-  DumpList("Result",p->stringValues("Tests","StringValue"));
   
   result_ok=p->intValue("Tests","IntegerValue",4321,&ok)==1234;
   Result("Integer Found",result_ok,ok==true,&pass,&fail);
@@ -266,11 +285,226 @@ bool MainObject::RunTests(const QString &desc,Profile *p,
     printf("[%d]: %d\n",i,vals.at(i));
   }
   */  
-  printf("%d / %d tests passed\n",pass,pass+fail);
 
   *pass_ctr+=pass;
   *fail_ctr+=fail;
   
+  return fail==0;
+}
+
+
+bool MainObject::RunTestsSectionIds(Profile *p,
+				    int *pass_ctr,int *fail_ctr) const
+{
+  int pass=0;
+  int fail=0;
+  bool result_ok=false;
+
+  QStringList sections;
+  sections.push_back("Tests");
+  sections.push_back("Random");
+  SingleResult("List Sections",p->sections()==sections,&pass,&fail);
+
+  QStringList section_ids;
+  section_ids.push_back("Default");
+  section_ids.push_back("Second");
+  SingleResult("List Section IDs",p->sectionIds("Tests")==section_ids,
+	       &pass,&fail);
+  //  DumpList("Test Data",section_ids);
+  //  DumpList("Result",p->sectionIds("Tests"));
+
+  QStringList strings;
+  strings.push_back("Now is the time");
+  strings.push_back("for all good men");
+  result_ok=(p->stringValues("Tests","Default","StringValue")==strings);
+  SingleResult("String Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  strings.clear();
+  strings.push_back("to come to the aid");
+  strings.push_back("of their country!");
+  result_ok=(p->stringValues("Tests","Second","StringValue")==strings);
+  SingleResult("String Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  QList<int> ints;
+  ints.push_back(1234);
+  ints.push_back(2345);
+  result_ok=(p->intValues("Tests","Default","IntegerValue")==ints);
+  SingleResult("Integer Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  ints.clear();
+  ints.push_back(3456);
+  ints.push_back(4567);
+  result_ok=(p->intValues("Tests","Second","IntegerValue")==ints);
+  SingleResult("Integer Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  ints.clear();
+  ints.push_back(1234);
+  ints.push_back(2345);
+  result_ok=(p->hexValues("Tests","Default","HexValue")==ints);
+  SingleResult("Hex Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  ints.clear();
+  ints.push_back(3456);
+  ints.push_back(4567);
+  result_ok=(p->hexValues("Tests","Second","HexValue")==ints);
+  SingleResult("Hex Multi-Value [Id=Second]",result_ok,&pass,&fail);
+  //  DumpList("Test Data1",ints);
+  //  DumpList("Result",p->hexValues("Tests","Second","IntegerValue"));
+
+  QList<double> doubles;
+  doubles.push_back(3.1415928);
+  doubles.push_back(6.2831856);
+  result_ok=(p->doubleValues("Tests","Default","DoubleValue")==doubles);
+  SingleResult("Double Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  doubles.clear();
+  doubles.push_back(9.4247784);
+  doubles.push_back(12.5663712);
+  result_ok=(p->doubleValues("Tests","Second","DoubleValue")==doubles);
+  SingleResult("Double Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  QList<bool> on_bools;
+  on_bools.push_back(true);
+  on_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Default","BoolYesValue")==on_bools);
+  SingleResult("Bool Yes Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Second","BoolYesValue")==on_bools);
+  SingleResult("Bool Yes Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  QList<bool> off_bools;
+  off_bools.push_back(false);
+  off_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Default","BoolNoValue")==off_bools);
+  SingleResult("Bool No Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Second","BoolNoValue")==off_bools);
+  SingleResult("Bool No Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Default","BoolOnValue")==on_bools);
+  SingleResult("Bool On Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Second","BoolOnValue")==on_bools);
+  SingleResult("Bool On Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Default","BoolOffValue")==off_bools);
+  SingleResult("Bool Off Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Second","BoolOffValue")==off_bools);
+  SingleResult("Bool Off Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Default","BoolTrueValue")==on_bools);
+  SingleResult("Bool True Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Second","BoolTrueValue")==on_bools);
+  SingleResult("Bool True Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Default","BoolFalseValue")==off_bools);
+  SingleResult("Bool False Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Second","BoolFalseValue")==off_bools);
+  SingleResult("Bool False Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Default","BoolOneValue")==on_bools);
+  SingleResult("Bool One Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  on_bools.clear();
+  on_bools.push_back(true);
+  on_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Second","BoolOneValue")==on_bools);
+  SingleResult("Bool One Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(true);
+  result_ok=(p->boolValues("Tests","Default","BoolZeroValue")==off_bools);
+  SingleResult("Bool Zero Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  off_bools.clear();
+  off_bools.push_back(false);
+  off_bools.push_back(false);
+  result_ok=(p->boolValues("Tests","Second","BoolZeroValue")==off_bools);
+  SingleResult("Bool Zero Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  QList<QTime> times;
+  times.push_back(QTime(9,30,0));
+  times.push_back(QTime(10,30,0));
+  result_ok=(p->timeValues("Tests","Default","TimeHHMMMorningValue")==times);
+  SingleResult("TimeHHMMMorning Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  times.clear();
+  times.push_back(QTime(11,30,0));
+  times.push_back(QTime(12,30,0));
+  result_ok=(p->timeValues("Tests","Second","TimeHHMMMorningValue")==times);
+  SingleResult("TimeHHMMMorning Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  times.clear();
+  times.push_back(QTime(21,30,0));
+  times.push_back(QTime(22,15,0));
+  result_ok=(p->timeValues("Tests","Default","TimeHHMMEveningValue")==times);
+  SingleResult("TimeHHMMEvening Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  times.clear();
+  times.push_back(QTime(23,30,0));
+  times.push_back(QTime(23,45,0));
+  result_ok=(p->timeValues("Tests","Second","TimeHHMMEveningValue")==times);
+  SingleResult("TimeHHMMEvening Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  times.clear();
+  times.push_back(QTime(9,30,45));
+  times.push_back(QTime(10,30,45));
+  result_ok=(p->timeValues("Tests","Default","TimeHHMMSSMorningValue")==times);
+  SingleResult("TimeHHMMSSMorning Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  times.clear();
+  times.push_back(QTime(11,30,45));
+  times.push_back(QTime(11,45,45));
+  result_ok=(p->timeValues("Tests","Second","TimeHHMMSSMorningValue")==times);
+  SingleResult("TimeHHMMSSMorning Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  times.clear();
+  times.push_back(QTime(21,30,45));
+  times.push_back(QTime(22,30,45));
+  result_ok=(p->timeValues("Tests","Default","TimeHHMMSSEveningValue")==times);
+  SingleResult("TimeHHMMSSEvening Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  times.clear();
+  times.push_back(QTime(22,30,45));
+  times.push_back(QTime(23,30,45));
+  result_ok=(p->timeValues("Tests","Second","TimeHHMMSSEveningValue")==times);
+  SingleResult("TimeHHMMSSEvening Multi-Value [Id=Second]",result_ok,&pass,&fail);
+
+  QList<QHostAddress> addrs;
+  addrs.push_back(QHostAddress("1.2.3.4"));
+  addrs.push_back(QHostAddress("5.6.7.8"));
+  result_ok=(p->addressValues("Tests","Default","IpAddressValidValue")==addrs);
+  SingleResult("IpAddress Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  addrs.clear();
+  addrs.push_back(QHostAddress("6.7.8.9"));
+  addrs.push_back(QHostAddress("7.8.9.10"));
+  result_ok=(p->addressValues("Tests","Second","IpAddressValidValue")==addrs);
+  SingleResult("IpAddress Multi-Value [Id=Second]",result_ok,&pass,&fail);
+  
+  *pass_ctr+=pass;
+  *fail_ctr+=fail;
+
   return fail==0;
 }
 

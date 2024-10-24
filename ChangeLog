@@ -22,3 +22,5 @@
 2024-10-23 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a bug in 'Profile' that caused parameters from diverse
 	sections to be combined in the incorrect order.
+2024-10-24 Fred Gleason <fredg@paravelsystems.com>
+	* Added support for section IDs to 'Profile'.
