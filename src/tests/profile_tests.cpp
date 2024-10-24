@@ -56,7 +56,7 @@ MainObject::MainObject()
   delete p;
   printf("\n");
 
-  printf("**** Unified Directory ****\n");
+  printf("**** Extended Multipart Format ****\n");
   p=new Profile();
   p->loadDirectory("../../fixtures","extended_part*.conf",&err_msgs);
   for(int i=0;i<err_msgs.size();i++) {
