@@ -20,6 +20,7 @@
 ## Use automake to process this into a Makefile.in
 
 SUBDIRS = debian\
+          fixtures\
           helpers\
           src
 

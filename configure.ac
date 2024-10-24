@@ -173,6 +173,7 @@ GENERATED_XML_FILE_WARNING=$srcdir/helpers/xml_file_warning
 AC_CONFIG_FILES([ \
     debian/Makefile \
     debian/source/Makefile \
+    fixtures/Makefile \
     helpers/Makefile \
     src/lib/Makefile \
     src/tests/Makefile \

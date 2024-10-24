@@ -37,8 +37,10 @@ class Profile
   Profile(bool use_section_ids=false);
   QStringList sectionNames() const;
   QString source() const;
-  bool setSource(const QString &filename,QString *err_msg=NULL);
-  bool setSource(const QStringList &values);
+  bool addSource(const QStringList &values);
+  bool loadFile(const QString &filename,QString *err_msg=NULL);
+  int loadDirectory(const QString &dirpath,const QString &glob_template,
+		    QStringList *err_msgs);
   QStringList sections() const;
   QStringList sectionIds(const QString &section) const;
   QString stringValue(const QString &section,const QString &tag,

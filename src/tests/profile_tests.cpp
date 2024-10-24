@@ -31,34 +31,38 @@ MainObject::MainObject()
   int total_pass=0;
   int total_fail=0;
   QStringList lines;
-
-  //
-  // Disabled Section IDs
-  //
   QString err_msg;
+  QStringList err_msgs;
+  
+  printf("**** Section IDs Disabled ****\n");
   Profile *p=new Profile();
-  if(!p->setSource("profile_tests_no_section_ids.dat",&err_msg)) {
+  if(!p->loadFile("../../fixtures/profile_tests_no_section_ids.dat",&err_msg)) {
     fprintf(stderr,"profile_tests: failed to open test data [%s]\n",
 	    err_msg.toUtf8().constData());
     exit(1);
   }
-  printf("**** Section IDs Disabled ****\n");
   RunTestsNoSectionIds(p,&total_pass,&total_fail);
   delete p;
   printf("\n");
 
-  //
-  // Enabled Section IDs
-  //
-  p=new Profile(true);
   printf("**** Section IDs Enabled ****\n");
-  if(!p->setSource("profile_tests_section_ids.dat",&err_msg)) {
+  p=new Profile(true);
+  if(!p->loadFile("../../fixtures/profile_tests_section_ids.dat",&err_msg)) {
     fprintf(stderr,"profile_tests: failed to open test data [%s]\n",
 	    err_msg.toUtf8().constData());
     exit(1);
   }
   RunTestsSectionIds(p,&total_pass,&total_fail);
   delete p;
+  printf("\n");
+
+  printf("**** Unified Directory ****\n");
+  p=new Profile();
+  p->loadDirectory("../../fixtures","unified*.conf",&err_msgs);
+  for(int i=0;i<err_msgs.size();i++) {
+    fprintf(stderr," Error: %s\n",err_msgs.at(i).toUtf8().constData());
+  }
+  RunTestsNoSectionIds(p,&total_pass,&total_fail);
   printf("\n");
 
   printf("%d / %d tests passed\n",total_pass,total_pass+total_fail);
@@ -82,8 +86,6 @@ bool MainObject::RunTestsNoSectionIds(Profile *p,
   sections.push_back("Tests");
   sections.push_back("Random");
   SingleResult("List Sections",p->sections()==sections,&pass,&fail);
-  //  DumpList("Test Data",sections);
-  //  DumpList("Result",p->sections());
 
   result_ok=p->stringValue("Tests","StringValue","of their country!",&ok)==
 			   "Now is the time";
@@ -223,8 +225,6 @@ bool MainObject::RunTestsNoSectionIds(Profile *p,
   times.push_back(QTime(23,45,0));
   result_ok=(p->timeValues("Tests","TimeHHMMEveningValue")==times);
   SingleResult("TimeHHMMEvening Multi-Value",result_ok,&pass,&fail);
-  //  DumpList("Test Data",times);
-  //  DumpList("Result",p->timeValues("Tests","TimeHHMMEveningValue"));
   
   result_ok=p->timeValue("Tests","TimeHHMMSSMorningValue",QTime(10,45,45),&ok)==
     QTime(9,30,45);
@@ -278,17 +278,9 @@ bool MainObject::RunTestsNoSectionIds(Profile *p,
   result_ok=(p->addressValues("Tests","IpAddressValidValue")==addrs);
   SingleResult("IpAddress Multi-Value",result_ok,&pass,&fail);
 
-  /*
-  printf("RES: %d\n",p->intValue("Tests","IntegerValue",4321,&ok));
-  QList<int> vals=p->intValues("Tests","IntegerValue");
-  for(int i=0;i<vals.size();i++) {
-    printf("[%d]: %d\n",i,vals.at(i));
-  }
-  */  
-
   *pass_ctr+=pass;
   *fail_ctr+=fail;
-  
+
   return fail==0;
 }
 
@@ -310,8 +302,6 @@ bool MainObject::RunTestsSectionIds(Profile *p,
   section_ids.push_back("Second");
   SingleResult("List Section IDs",p->sectionIds("Tests")==section_ids,
 	       &pass,&fail);
-  //  DumpList("Test Data",section_ids);
-  //  DumpList("Result",p->sectionIds("Tests"));
 
   QStringList strings;
   strings.push_back("Now is the time");
@@ -345,8 +335,6 @@ bool MainObject::RunTestsSectionIds(Profile *p,
   ints.push_back(4567);
   result_ok=(p->hexValues("Tests","Second","HexValue")==ints);
   SingleResult("Hex Multi-Value [Id=Second]",result_ok,&pass,&fail);
-  //  DumpList("Test Data1",ints);
-  //  DumpList("Result",p->hexValues("Tests","Second","IntegerValue"));
 
   QList<double> doubles;
   doubles.push_back(3.1415928);
@@ -451,7 +439,8 @@ bool MainObject::RunTestsSectionIds(Profile *p,
   times.push_back(QTime(9,30,0));
   times.push_back(QTime(10,30,0));
   result_ok=(p->timeValues("Tests","Default","TimeHHMMMorningValue")==times);
-  SingleResult("TimeHHMMMorning Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  SingleResult("TimeHHMMMorning Multi-Value [Id=Default]",result_ok,
+	       &pass,&fail);
   times.clear();
   times.push_back(QTime(11,30,0));
   times.push_back(QTime(12,30,0));
@@ -462,7 +451,8 @@ bool MainObject::RunTestsSectionIds(Profile *p,
   times.push_back(QTime(21,30,0));
   times.push_back(QTime(22,15,0));
   result_ok=(p->timeValues("Tests","Default","TimeHHMMEveningValue")==times);
-  SingleResult("TimeHHMMEvening Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  SingleResult("TimeHHMMEvening Multi-Value [Id=Default]",result_ok,
+	       &pass,&fail);
   times.clear();
   times.push_back(QTime(23,30,0));
   times.push_back(QTime(23,45,0));
@@ -473,23 +463,27 @@ bool MainObject::RunTestsSectionIds(Profile *p,
   times.push_back(QTime(9,30,45));
   times.push_back(QTime(10,30,45));
   result_ok=(p->timeValues("Tests","Default","TimeHHMMSSMorningValue")==times);
-  SingleResult("TimeHHMMSSMorning Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  SingleResult("TimeHHMMSSMorning Multi-Value [Id=Default]",result_ok,
+	       &pass,&fail);
   times.clear();
   times.push_back(QTime(11,30,45));
   times.push_back(QTime(11,45,45));
   result_ok=(p->timeValues("Tests","Second","TimeHHMMSSMorningValue")==times);
-  SingleResult("TimeHHMMSSMorning Multi-Value [Id=Second]",result_ok,&pass,&fail);
+  SingleResult("TimeHHMMSSMorning Multi-Value [Id=Second]",result_ok,
+	       &pass,&fail);
 
   times.clear();
   times.push_back(QTime(21,30,45));
   times.push_back(QTime(22,30,45));
   result_ok=(p->timeValues("Tests","Default","TimeHHMMSSEveningValue")==times);
-  SingleResult("TimeHHMMSSEvening Multi-Value [Id=Default]",result_ok,&pass,&fail);
+  SingleResult("TimeHHMMSSEvening Multi-Value [Id=Default]",result_ok,
+	       &pass,&fail);
   times.clear();
   times.push_back(QTime(22,30,45));
   times.push_back(QTime(23,30,45));
   result_ok=(p->timeValues("Tests","Second","TimeHHMMSSEveningValue")==times);
-  SingleResult("TimeHHMMSSEvening Multi-Value [Id=Second]",result_ok,&pass,&fail);
+  SingleResult("TimeHHMMSSEvening Multi-Value [Id=Second]",result_ok,
+	       &pass,&fail);
 
   QList<QHostAddress> addrs;
   addrs.push_back(QHostAddress("1.2.3.4"));
@@ -507,6 +501,18 @@ bool MainObject::RunTestsSectionIds(Profile *p,
 
   return fail==0;
 }
+
+
+bool MainObject::RunTestsUnified(Profile *p,int *pass_ctr,int *fail_ctr) const
+{
+  int pass=0;
+  int fail=0;
+  
+  *pass_ctr+=pass;
+  *fail_ctr+=fail;
+
+  return fail==0;
+}  
 
 
 void MainObject::Title(const QString &title) const

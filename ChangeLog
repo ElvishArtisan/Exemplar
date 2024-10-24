@@ -24,3 +24,7 @@
 	sections to be combined in the incorrect order.
 2024-10-24 Fred Gleason <fredg@paravelsystems.com>
 	* Added support for section IDs to 'Profile'.
+2024-10-24 Fred Gleason <fredg@paravelsystems.com>
+	* Renamed the 'Profile::setSource(const QString &,QString *err_msg)'
+	method to 'Profile::loadFile(const QString &,QString *err_msg)'.
+	* Added a 'Profile::loadDirectory()' method.

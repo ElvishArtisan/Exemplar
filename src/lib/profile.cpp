@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 
+#include <QDir>
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
@@ -50,30 +51,7 @@ QString Profile::source() const
 }
 
 
-bool Profile::setSource(const QString &filename,QString *err_msg)
-{
-  FILE *f=NULL;
-  char data[1024];
-  QString block_name;
-  QMultiMap<QString,QString> block_lines;
-  
-  if((f=fopen(filename.toUtf8(),"r"))==NULL) {
-    if(err_msg!=NULL) {
-      *err_msg=strerror(errno);
-    }
-    return false;
-  }
-
-  QStringList values;
-  while(fgets(data,1023,f)!=NULL) {
-    values.push_back(QString::fromUtf8(data).trimmed());
-  }
-  setSource(values);
-  return true;
-}
-
-
-bool Profile::setSource(const QStringList &values)
+bool Profile::addSource(const QStringList &values)
 {
   QString block_name;
   QMap<QString,QStringList> block_lines;
@@ -99,14 +77,72 @@ bool Profile::setSource(const QStringList &values)
   if(!block_name.isEmpty()) {
     ProcessBlock(block_name,block_lines);
   }
-  /*
-  QStringList keys=d_blocks.keys();
-  for(int i=0;i<keys.size();i++) {
-    printf("[i]: %s\n",keys.at(i).toUtf8().constData());
-  }
-  */
   
   return true;
+}
+
+
+bool Profile::loadFile(const QString &filename,QString *err_msg)
+{
+  FILE *f=NULL;
+  char data[1024];
+  QString block_name;
+  QMultiMap<QString,QString> block_lines;
+  
+  if((f=fopen(filename.toUtf8(),"r"))==NULL) {
+    if(err_msg!=NULL) {
+      *err_msg=strerror(errno);
+    }
+    return false;
+  }
+
+  QStringList values;
+  while(fgets(data,1023,f)!=NULL) {
+    values.push_back(QString::fromUtf8(data).trimmed());
+  }
+  addSource(values);
+
+  return true;
+}
+
+
+int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
+			    QStringList *err_msgs)
+{
+  QString err_msg;
+  QDir dir(dirpath);
+  int ret=0;
+
+  if(!dir.exists()) {
+    if(err_msgs!=NULL) {
+      err_msgs->push_back(QObject::tr("no such directory"));
+      return false;
+    }
+  }
+  if(!dir.isReadable()) {
+    if(err_msgs!=NULL) {
+      err_msgs->push_back(QObject::tr("directory is not readable"));
+      return false;
+    }
+  }
+  QStringList name_filters;
+  name_filters.push_back(glob_template);
+  QStringList filenames=dir.entryList(name_filters,QDir::Files,QDir::Name);
+  for(int i=0;i<filenames.size();i++) {
+    if(loadFile(dir.path()+"/"+filenames.at(i),&err_msg)) {
+      ret++;
+    }
+    else {
+      if(err_msgs!=NULL) {
+	err_msgs->
+	  push_back(QString::asprintf("failed to load file \"%s\": %s",
+				      filenames.at(i).toUtf8().constData(),
+				      err_msg.toUtf8().constData()));
+      }
+    }
+  }
+
+  return ret;
 }
 
 
