@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include <QCoreApplication>
+#include <QDir>
 
 #include "profile_tests.h"
 
@@ -59,17 +60,27 @@ MainObject::MainObject()
 
   printf("**** Extended Multipart Format ****\n");
   p=new Profile();
-
   num=p->loadDirectory("../../fixtures*/extended_part*.conf",&err_msgs);
   Title("Directory Load Failed Test");
   Result(num==-1,&total_pass,&total_fail);
+  delete p;
 
+  p=new Profile();
+  QString abspath=
+    QDir::cleanPath(QDir::currentPath()+"/../../fixtures/extended_part*.conf");
+  num=p->loadDirectory(abspath,&err_msgs);
+  Title("Directory Load Absolute Path Test");
+  Result(num==4,&total_pass,&total_fail);
+  delete p;
+
+  p=new Profile();
   num=p->loadDirectory("../../fixtures/extended_part*.conf",&err_msgs);
   Title("Directory Load Passed Test");
   Result(num==4,&total_pass,&total_fail);
 
   RunLegacyTests(p,&total_pass,&total_fail);
   printf("\n");
+  delete p;
 
   printf("%d / %d tests passed\n",total_pass,total_pass+total_fail);
 

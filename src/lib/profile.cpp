@@ -150,7 +150,7 @@ int Profile::loadDirectory(const QString &dirpath,const QString &glob_template,
 
 int Profile::loadDirectory(const QString &glob_path,QStringList *err_msgs)
 {
-  QStringList f0=glob_path.split("/",Qt::SkipEmptyParts);
+  QStringList f0=glob_path.split("/",Qt::KeepEmptyParts);
   QString glob_template=f0.last();
   f0.removeLast();
   QString dir_path=f0.join("/");

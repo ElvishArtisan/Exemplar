@@ -38,3 +38,7 @@
 	* Added an overloaded 'Profile::loadDirectory()' method.
 2024-11-01 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 1.2.0.
+2024-11-01 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a but in 'Profile::loadDirectory()' that would fail when
+	given an absolute directory path.
+	* Added a 'Directory Load Absolute Path Test' test.
