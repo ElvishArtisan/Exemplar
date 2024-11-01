@@ -33,6 +33,7 @@ MainObject::MainObject()
   QStringList lines;
   QString err_msg;
   QStringList err_msgs;
+  int num;
   
   printf("**** Legacy Format ****\n");
   Profile *p=new Profile();
@@ -58,10 +59,15 @@ MainObject::MainObject()
 
   printf("**** Extended Multipart Format ****\n");
   p=new Profile();
-  p->loadDirectory("../../fixtures","extended_part*.conf",&err_msgs);
-  for(int i=0;i<err_msgs.size();i++) {
-    fprintf(stderr," Error: %s\n",err_msgs.at(i).toUtf8().constData());
-  }
+
+  num=p->loadDirectory("../../fixtures*/extended_part*.conf",&err_msgs);
+  Title("Directory Load Failed Test");
+  Result(num==-1,&total_pass,&total_fail);
+
+  num=p->loadDirectory("../../fixtures/extended_part*.conf",&err_msgs);
+  Title("Directory Load Passed Test");
+  Result(num==4,&total_pass,&total_fail);
+
   RunLegacyTests(p,&total_pass,&total_fail);
   printf("\n");
 
