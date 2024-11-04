@@ -44,3 +44,5 @@
 	* Added a 'Directory Load Absolute Path Test' test.
 2024-11-01 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 1.2.1.
+2024-11-04 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'Sendmail' interface.

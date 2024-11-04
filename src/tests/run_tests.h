@@ -1,4 +1,4 @@
-// profile_tests.h
+// run_tests.h
 //
 // Tests for the Profile configurator class.
 //
@@ -18,14 +18,14 @@
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#ifndef PROFILE_TESTS_H
-#define PROFILE_TESTS_H
+#ifndef RUN_TESTS_H
+#define RUN_TESTS_H
 
 #include <QObject>
 
 #include <profile.h>
 
-#define PROFILE_TESTS_USAGE "\n\n"
+#define RUN_TESTS_USAGE "\n\n"
 
 class MainObject : public QObject
 {
@@ -37,17 +37,8 @@ class MainObject : public QObject
   bool RunLegacyTests(Profile *p,int *pass_ctr,int *fail_ctr) const;
   bool RunExtendedTests(Profile *p,int *pass_ctr,int *fail_ctr) const;
   bool RunTestsUnified(Profile *p,int *pass_ctr,int *fail_ctr) const;
-  void Title(const QString &title) const;
-  bool SingleResult(const QString &title,bool result_ok,
-		    int *pass_ctr,int *fail_ctr) const;
-  bool Result(bool state,int *pass_ctr,int *fail_ctr) const;
-  void Result(const QString &title,bool result_ok,bool found,
-	      int *pass_ctr,int *fail_ctr) const;
-  void DumpList(const QString &title,const QStringList &list) const;
-  void DumpList(const QString &title,const QList<int> &list) const;
-  void DumpList(const QString &title,const QList<double> &list) const;
-  void DumpList(const QString &title,const QList<QTime> &list) const;
+  bool RunSendmailTests(int *pass_ctr,int *fail_ctr) const;
 };
 
 
-#endif  // PROFILE_TESTS_H
+#endif  // RUN_TESTS_H

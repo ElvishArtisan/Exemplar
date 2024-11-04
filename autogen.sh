@@ -25,7 +25,6 @@
 #
 DATESTAMP=`date +%a,\ %d\ %b\ %Y\ %T\ %z`
 sed s/@VERSION@/`cat PACKAGE_VERSION`/ < debian/control.src > debian/control
-sed s/@VERSION@/`cat PACKAGE_VERSION`/ < debian/control.src2 > debian/control
 sed s/@VERSION@/`cat PACKAGE_VERSION`/ < debian/changelog.src | sed "s/@DATESTAMP@/$DATESTAMP/" > debian/changelog
 
 mkdir -p m4

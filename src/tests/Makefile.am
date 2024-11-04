@@ -29,20 +29,20 @@ moc_%.cpp:	%.h
 	$(MOC) $< -o $@
 
 tests:	all
-	./profile_tests
+	./run_tests
 
 bin_PROGRAMS = dump_profile\
-               profile_tests
+               run_tests
 
-dist_dump_profile_SOURCES = dump_profile.cpp dump_profile.h
+dist_dump_profile_SOURCES = dump_profile.cpp dump_profile.h\
+                            test_methods.cpp test_methods.h
 nodist_dump_profile_SOURCES = moc_dump_profile.cpp
-dump_profile_LDADD = -lexemplar\
-                 @QT5_CLI_LIBS@
+dump_profile_LDADD = -lexemplar @QT5_CLI_LIBS@
 
-dist_profile_tests_SOURCES = profile_tests.cpp profile_tests.h
-nodist_profile_tests_SOURCES = moc_profile_tests.cpp
-profile_tests_LDADD = -lexemplar\
-                 @QT5_CLI_LIBS@
+dist_run_tests_SOURCES = run_tests.cpp run_tests.h\
+                         test_methods.cpp test_methods.h
+nodist_run_tests_SOURCES = moc_run_tests.cpp
+run_tests_LDADD = -lexemplar @QT5_CLI_LIBS@
 
 CLEANFILES = *~\
              *.idb\

@@ -28,7 +28,8 @@ moc_%.cpp:	%.h
 
 lib_LTLIBRARIES = libexemplar.la
 dist_libexemplar_la_SOURCES = cmdswitch.cpp cmdswitch.h\
-                              profile.cpp profile.h
+                              profile.cpp profile.h\
+                              sendmail.cpp sendmail.h
 
 libexemplar_la_LDFLAGS = -release $(VERSION)
 
