@@ -598,7 +598,6 @@ QString Profile::dump() const
       }
     }
   }
-  //    ret+="CRUFT!";
 
   return ret;
 }
@@ -607,21 +606,26 @@ QString Profile::dump() const
 void Profile::ProcessBlock(const QString &name,
 			   const QMap<QString,QStringList> &lines)
 {
+  QString block_name=name;
+  if(d_use_section_ids) {
+    QStringList ids=lines.value("Id");
+    QString id=__PROFILE_DEFAULT_SECTION_ID;
+    if(ids.size()>0) {
+      id=ids.first();
+    }
+    block_name=name+__PROFILE_SECTION_ID_DELIMITER+id;
+  }
+
   if(!lines.isEmpty()) {
     QMap<QString,QStringList> block=
-      d_blocks.value(name,QMap<QString,QStringList>());
+      d_blocks.value(block_name,QMap<QString,QStringList>());
 
     for(QMap<QString,QStringList>::const_iterator it=lines.begin();
 	it!=lines.end();it++) {
       block[it.key()].append(it.value());
     }
     if(d_use_section_ids) {
-      QStringList ids=lines.value("Id");
-      QString id=__PROFILE_DEFAULT_SECTION_ID;
-      if(ids.size()>0) {
-	id=ids.first();
-      }
-      d_blocks[name+__PROFILE_SECTION_ID_DELIMITER+id]=block;
+      d_blocks[block_name]=block;
     }
     else {
       d_blocks[name]=block;

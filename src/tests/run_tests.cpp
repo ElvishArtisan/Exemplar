@@ -23,6 +23,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QProcess>
 
 #include "run_tests.h"
 #include "test_methods.h"
@@ -92,6 +93,10 @@ MainObject::MainObject()
   RunLegacyTests(p,&total_pass,&total_fail);
   printf("\n");
   delete p;
+
+  printf("**** Profile Dump Tests ****\n");
+  RunDumpTests(&total_pass,&total_fail);
+  printf("\n");
 
   printf("**** Sendmail Interface ****\n");
   RunSendmailTests(&total_pass,&total_fail);
@@ -593,96 +598,56 @@ bool MainObject::RunSendmailTests(int *pass_ctr,int *fail_ctr) const
 }
 
 
-bool MainObject::RunTestsUnified(Profile *p,int *pass_ctr,int *fail_ctr) const
+bool MainObject::RunDumpTests(int *pass_ctr,int *fail_ctr)
 {
   int pass=0;
   int fail=0;
+
+  DumpTest("legacy.conf","legacy.conf",false,"Legacy Mode Dump Test",
+	   &pass,&fail);
+  DumpTest("extended.conf","extended.conf",true,"Extended Mode Dump Test",
+	   &pass,&fail);
+  DumpTest("extended_part*","extended_all.conf",true,"Multi-File Mode Dump Test",
+	   &pass,&fail); 
   
   *pass_ctr+=pass;
   *fail_ctr+=fail;
 
   return fail==0;
-}  
-
-/*
-void MainObject::Title(const QString &title) const
-{
-  printf("  %55s ... ",title.toUtf8().constData());
-  fflush(stdout);
 }
 
 
-bool MainObject::SingleResult(const QString &title,bool result_ok,
-			      int *pass_ctr,int *fail_ctr) const
+bool MainObject::DumpTest(const QString &fixture,const QString &exemplar,
+			  bool use_sect_ids,const QString &name,
+			  int *pass_ctr,int *fail_ctr)
 {
-  Title(title+" Value Result");
-  Result(result_ok,pass_ctr,fail_ctr);
-
-  return result_ok;
-}
-
-
-bool MainObject::Result(bool state,int *pass_ctr,int *fail_ctr) const
-{
-  if(state) {
-    printf("PASS\n");
-    (*pass_ctr)++;
+  QStringList args;
+  args.push_back(QString::asprintf("--path=../../fixtures/%s",
+				   fixture.toUtf8().constData()));
+  args.push_back(QString::asprintf("--compare-to=../../fixtures/%s",
+				   exemplar.toUtf8().constData()));
+  if(use_sect_ids) {
+    args.push_back("--use-section-ids");
   }
-  else {
-    printf("FAIL\n");
-    (*fail_ctr)++;
+  QProcess *proc=new QProcess(this);
+  proc->start("./dump_profile",args);
+  proc->waitForFinished();
+  if(proc->exitStatus()!=QProcess::NormalExit) {
+    fprintf(stderr,"run_tests: dump_profile crashed\n");
+    exit(1);
   }
-
-  return state;
-}
-
-
-void MainObject::Result(const QString &title,bool result_ok,bool found,
-			int *pass_ctr,int *fail_ctr) const
-{
-  Title(title+" Value Result");
-  Result(result_ok,pass_ctr,fail_ctr);
-
-  Title(title+" Found Result");
-  Result(found,pass_ctr,fail_ctr);
-}
-
-
-void MainObject::DumpList(const QString &title,const QStringList &list) const
-{
-  printf("%s\n",title.toUtf8().constData());
-  for(int i=0;i<list.size();i++) {
-    printf("[%d]: %s\n",i,list.at(i).toUtf8().constData());
+  if(proc->exitCode()!=0) {
+    fprintf(stderr,"run_tests: dump_profile returned non-zero exit code [%s]\n",
+	    proc->readAllStandardError().constData());
+    exit(1);
   }
+  QString diff=proc->readAllStandardOutput();
+  bool result=diff.isEmpty();
+  PrintSingleResult(name,result,pass_ctr,fail_ctr);
+
+  return result;
 }
 
-
-void MainObject::DumpList(const QString &title,const QList<int> &list) const
-{
-  printf("%s\n",title.toUtf8().constData());
-  for(int i=0;i<list.size();i++) {
-    printf("[%d]: %d\n",i,list.at(i));
-  }
-}
-
-
-void MainObject::DumpList(const QString &title,const QList<double> &list) const
-{
-  printf("%s\n",title.toUtf8().constData());
-  for(int i=0;i<list.size();i++) {
-    printf("[%d]: %10.7lf\n",i,list.at(i));
-  }
-}
-
-
-void MainObject::DumpList(const QString &title,const QList<QTime> &list) const
-{
-  printf("%s\n",title.toUtf8().constData());
-  for(int i=0;i<list.size();i++) {
-    printf("[%d]: %s\n",i,list.at(i).toString("hh:mm:ss").toUtf8().constData());
-  }
-}
-*/
 
 int main(int argc,char *argv[])
 {

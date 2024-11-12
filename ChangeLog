@@ -53,3 +53,5 @@
 	method to 'Profile::load(const QString &,QStringList *)'.
 	* Fixed the 'Profile::dump()' method to properly handle multiple
 	blocks with the same section type.
+2024-11-12 Fred Gleason <fredg@paravelsystems.com>
+	* Added dump tests to 'src/tests/run_tests.cpp'.

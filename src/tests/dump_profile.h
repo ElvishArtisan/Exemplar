@@ -23,7 +23,7 @@
 
 #include <QObject>
 
-#define DUMP_PROFILE_USAGE "--filename=<path-name> --dirname=<path-name> [...]\n\n"
+#define DUMP_PROFILE_USAGE "--compare-to=<exemplar> --use-section-ids --path=<glob-path> [...]\n\n"
 
 class MainObject : public QObject
 {

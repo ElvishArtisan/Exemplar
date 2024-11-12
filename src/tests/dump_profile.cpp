@@ -20,9 +20,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QProcess>
 #include <QStringList>
 
 #include <cmdswitch.h>
@@ -35,59 +37,92 @@ MainObject::MainObject()
 {
   QString err_msg;
   QStringList err_msgs;
-  QStringList pathnames;
-  QList<bool> is_directories;
-  int err_count=0;
+  QStringList paths;
+  bool use_section_ids=false;
+  QString compare_to;
   
   CmdSwitch *cmd=new CmdSwitch("dump_profile",VERSION,DUMP_PROFILE_USAGE);
   for(int i=0;i<cmd->keys();i++) {
-    if(cmd->key(i)=="--filename") {
-      pathnames.push_back(cmd->value(i).trimmed());
-      is_directories.push_back(false);
+    if(cmd->key(i)=="--compare-to") {
+      compare_to=cmd->value(i).trimmed();
       cmd->setProcessed(i,true);
     }
-    if(cmd->key(i)=="--dirname") {
-      pathnames.push_back(cmd->value(i).trimmed());
-      is_directories.push_back(true);
+    if(cmd->key(i)=="--path") {
+      paths.push_back(cmd->value(i).trimmed());
       cmd->setProcessed(i,true);
     }
-  }
-  if(pathnames.size()==0) {
-    fprintf(stderr,"dump_profile: USAGE: %s\n",DUMP_PROFILE_USAGE);
-    exit(1);
+    if(cmd->key(i)=="--use-section-ids") {
+      use_section_ids=true;
+      cmd->setProcessed(i,true);
+    }
+    if(!cmd->processed(i)) {
+      fprintf(stderr,"dump_profile: unrecognized option \"%s\"\n",
+	      cmd->key(i).toUtf8().constData());
+      exit(1);
+    }
   }
 
-  Profile *p=new Profile();
-  for(int i=0;i<pathnames.size();i++) {
-    if(is_directories.at(i)) {
-      // Directory
-      QStringList f0=pathnames.at(i).split("/",Qt::SkipEmptyParts);
-      if(!f0.last().isEmpty()) {
-	QString glob_template=f0.last();
-	f0.removeLast();
-	QString dirpath=f0.join("/");
-	p->loadDirectory(dirpath,glob_template,&err_msgs);
-	for(int i=0;i<err_msgs.size();i++) {
-	  fprintf(stderr,"dump_profile: %s\n",
-		  err_msgs.at(i).toUtf8().constData());
-	}
-	err_count+=err_msgs.size();
-      }
+  Profile *p=new Profile(use_section_ids);
+  for(int i=0;i<paths.size();i++) {
+    if(p->load(paths.at(i),&err_msgs)<0) {
+      fprintf(stderr,"[%d]: %s",i,err_msgs.at(i).toUtf8().constData());
+      exit(1);
     }
     else {
-      // File
-      if(!p->loadFile(pathnames.at(i),&err_msg)) {
-	fprintf(stderr,"dump_profile: unable to load file \"%s\": %s\n",
-		pathnames.at(i).toUtf8().constData(),
-		err_msg.toUtf8().constData());
-	err_count++;
+      for(int j=0;j<err_msgs.size();j++) {
+	fprintf(stderr,"%s\n",err_msgs.at(j).toUtf8().constData());
       }
     }
   }
 
-  printf("%s",p->dump().toUtf8().constData());
+  if(compare_to.isEmpty()) {
+    //
+    // Print the dump
+    //
+    printf("%s",p->dump().toUtf8().constData());
+  }
+  else {
+    //
+    // Diff the dump against an exemplar
+    //
+    FILE *f=fopen("OUTPUT","w");
+    if(f==NULL) {
+      fprintf(stderr,
+	      "dump_profile: failed to create temp file \"OUTPUT\" [%s]\n",
+	      strerror(errno));
+      exit(1);
+    }
+    fprintf(f,"%s",p->dump().toUtf8().constData());
+    fclose(f);
 
-  exit(err_count);
+    QStringList args;
+    args.push_back("-u");
+    args.push_back(compare_to);
+    args.push_back("OUTPUT");
+    QProcess *proc=new QProcess(this);
+    proc->start("diff",args);
+    proc->waitForFinished();
+    if(proc->exitStatus()!=QProcess::NormalExit) {
+      fprintf(stderr,"dump_profile: diff process crashed\n");
+      exit(1);
+    }
+    if(proc->exitCode()>=2) {
+      fprintf(stderr,"dump_profile: diff returned error [%s]\n",
+	      proc->readAllStandardError().constData());
+      exit(1);
+    }
+    if(proc->exitCode()!=0) {
+      printf("**** DIFF BEGINS ****\n");
+    }
+    printf("%s",proc->readAllStandardOutput().constData());
+    if(proc->exitCode()!=0) {
+      printf("**** DIFF ENDS ****\n");
+    }
+    delete proc;
+    unlink("OUTPUT");
+  }
+
+  exit(0);
 }
 
 

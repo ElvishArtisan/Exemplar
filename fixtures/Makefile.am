@@ -21,6 +21,7 @@
 ## Use automake to process this into a Makefile.in
 
 EXTRA_DIST = extended.conf\
+             extended_all.conf\
              extended_part1.conf\
              extended_part2.conf\
              extended_part3.conf\

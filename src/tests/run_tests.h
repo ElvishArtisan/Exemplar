@@ -36,8 +36,11 @@ class MainObject : public QObject
  private:
   bool RunLegacyTests(Profile *p,int *pass_ctr,int *fail_ctr) const;
   bool RunExtendedTests(Profile *p,int *pass_ctr,int *fail_ctr) const;
-  bool RunTestsUnified(Profile *p,int *pass_ctr,int *fail_ctr) const;
   bool RunSendmailTests(int *pass_ctr,int *fail_ctr) const;
+  bool RunDumpTests(int *pass_ctr,int *fail_ctr);
+  bool DumpTest(const QString &fixture,const QString &exemplar,
+		bool use_sect_ids,const QString &name,
+		int *pass_ctr,int *fail_ctr);
 };
 
 
