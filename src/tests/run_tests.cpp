@@ -71,7 +71,7 @@ MainObject::MainObject()
 
   printf("**** Extended Multipart Format ****\n");
   p=new Profile();
-  num=p->loadDirectory("../../fixtures*/extended_part*.conf",&err_msgs);
+  num=p->load("../../fixtures*/extended_part*.conf",&err_msgs);
   PrintTitle("Directory Load Failed Test");
   PrintResultState(num==-1,&total_pass,&total_fail);
   delete p;
@@ -79,13 +79,13 @@ MainObject::MainObject()
   p=new Profile();
   QString abspath=
     QDir::cleanPath(QDir::currentPath()+"/../../fixtures/extended_part*.conf");
-  num=p->loadDirectory(abspath,&err_msgs);
+  num=p->load(abspath,&err_msgs);
   PrintTitle("Directory Load Absolute Path Test");
   PrintResultState(num==4,&total_pass,&total_fail);
   delete p;
 
   p=new Profile();
-  num=p->loadDirectory("../../fixtures/extended_part*.conf",&err_msgs);
+  num=p->load("../../fixtures/extended_part*.conf",&err_msgs);
   PrintTitle("Directory Load Passed Test");
   PrintResultState(num==4,&total_pass,&total_fail);
 

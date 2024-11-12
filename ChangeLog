@@ -48,3 +48,8 @@
 	* Added a 'Sendmail' interface.
 2024-11-07 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 1.3.0.
+2024-11-12 Fred Gleason <fredg@paravelsystems.com>
+	* Renamed the 'Profile::loadDirectory(const QString &,QStringList *)'
+	method to 'Profile::load(const QString &,QStringList *)'.
+	* Fixed the 'Profile::dump()' method to properly handle multiple
+	blocks with the same section type.

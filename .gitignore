@@ -34,5 +34,6 @@ Makefile
 Makefile.in
 missing
 moc_*
+src/tests/run_tests
 src/tests/dump_profile
 src/tests/profile_tests
