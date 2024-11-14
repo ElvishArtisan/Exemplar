@@ -55,3 +55,5 @@
 	blocks with the same section type.
 2024-11-12 Fred Gleason <fredg@paravelsystems.com>
 	* Added dump tests to 'src/tests/run_tests.cpp'.
+2024-11-14 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 2.0.0.
