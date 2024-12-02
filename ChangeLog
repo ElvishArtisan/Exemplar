@@ -60,3 +60,5 @@
 2024-12-02 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a bug in 'Profile::stringValue()' to truncate string values
 	longer than 1024 bytes.
+2024-12-02 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to v2.0.1.
