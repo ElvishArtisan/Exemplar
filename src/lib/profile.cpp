@@ -86,20 +86,16 @@ bool Profile::addSource(const QStringList &values)
 
 bool Profile::loadFile(const QString &filename,QString *err_msg)
 {
-  FILE *f=NULL;
-  char data[1024];
-  QString block_name;
-  
-  if((f=fopen(filename.toUtf8(),"r"))==NULL) {
-    if(err_msg!=NULL) {
-      *err_msg=strerror(errno);
-    }
+  QFile data(filename);
+  if(!data.open(QFile::ReadOnly)) {
+    *err_msg="unable to open file";
     return false;
   }
-
+  QTextStream in(&data);
+  QString line;
   QStringList values;
-  while(fgets(data,1023,f)!=NULL) {
-    values.push_back(QString::fromUtf8(data).trimmed());
+  while(in.readLineInto(&line)) {
+    values.push_back(line.trimmed());
   }
   addSource(values);
   if(err_msg!=NULL) {

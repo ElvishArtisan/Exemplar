@@ -57,3 +57,6 @@
 	* Added dump tests to 'src/tests/run_tests.cpp'.
 2024-11-14 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 2.0.0.
+2024-12-02 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in 'Profile::stringValue()' to truncate string values
+	longer than 1024 bytes.
