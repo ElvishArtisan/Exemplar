@@ -2,7 +2,7 @@
 //
 // Class for reading INI configuration files.
 //
-// (C) Copyright 2013-2024 Fred Gleason <fredg@paravelsystems.com>
+// (C) Copyright 2013-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of version 2.1 of the GNU Lesser General Public
@@ -18,7 +18,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, 
 //    Boston, MA  02111-1307  USA
 //
-// EXEMPLAR_VERSION: 2.0.1
+// EXEMPLAR_VERSION: 2.0.2
 //
 
 #ifndef PROFILE_H

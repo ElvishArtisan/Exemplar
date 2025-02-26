@@ -65,3 +65,5 @@
 2024-02-26 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a bug in 'Profile::loadFile()' that caused a segfault
 	when an error occurred but no 'err_msg' parameter was supplied.
+2024-02-26 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to v2.0.2.
