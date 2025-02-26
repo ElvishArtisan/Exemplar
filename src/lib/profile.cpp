@@ -88,7 +88,9 @@ bool Profile::loadFile(const QString &filename,QString *err_msg)
 {
   QFile data(filename);
   if(!data.open(QFile::ReadOnly)) {
-    *err_msg="unable to open file";
+    if(err_msg!=NULL) {
+      *err_msg="unable to open file";
+    }
     return false;
   }
   QTextStream in(&data);

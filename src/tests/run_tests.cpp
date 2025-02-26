@@ -47,9 +47,16 @@ MainObject::MainObject()
   QString err_msg;
   QStringList err_msgs;
   int num;
+  Profile *p=NULL;
+
+  printf("**** Null Tests ****\n");
+  p=new Profile();
+  num=p->loadFile("/no/such/file/here");
+  PrintTitle("No Error Messages Test");
+  PrintResultState(num==0,&total_pass,&total_fail);
   
   printf("**** Legacy Format ****\n");
-  Profile *p=new Profile();
+  p=new Profile();
   if(!p->loadFile("../../fixtures/legacy.conf",&err_msg)) {
     fprintf(stderr,"run_tests: failed to open test data [%s]\n",
 	    err_msg.toUtf8().constData());
