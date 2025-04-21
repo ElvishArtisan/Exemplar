@@ -8,7 +8,7 @@
 #   See https://www.freedesktop.org/software/systemd/man/os-release.html
 #   for a description of the various fields.
 #
-#   (C) Copyright 2012-2021 Fred Gleason <fredg@salemradiolabs.com>
+#   (C) Copyright 2012-2025 Fred Gleason <fredg@salemradiolabs.com>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@
 #   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-my $usage="USAGE: get_distro.pl NAME|PRETTY_NAME|ID|ID_LIKE|VERSION|MAJOR|MINOR|POINT";
+my $usage="USAGE: get_distro.pl NAME|PRETTY_NAME|ID|ID_LIKE|VERSION|MAJOR|MINOR|PKG_TYPE|POINT";
 
 if($ARGV[0] eq "NAME") {
     print &Extract("NAME");
@@ -81,9 +81,67 @@ if($ARGV[0] eq "POINT") {
     exit 0;
 }
 
+if($ARGV[0] eq "PKG_TYPE") {
+    #
+    # Try to match exact distro type
+    #
+    my $id=&Extract("ID");
+    if($id eq "centos") {
+	print "rpm";
+	exit 0;
+    }
+    if($id eq "debian") {
+	print "deb";
+	exit 0;
+    }
+    if($id eq "linuxmint") {
+	print "deb";
+	exit 0;
+    }
+    if($id eq "rhel") {
+	print "rpm";
+	exit 0;
+    }
+    if($id eq "rocky") {
+	print "rpm";
+	exit 0;
+    }
+    if($id eq "ubuntu") {
+	print "deb";
+	exit 0;
+    }
+
+    #
+    # Fall back to categories
+    #
+    my $id_like=&Extract("ID_LIKE");
+    if(index($id_like,"debian")) {
+	print "deb";
+	exit 0;
+    }
+    if(index($id_like,"centos")) {
+	print "rpm";
+	exit 0;
+    }
+    if(index($id_like,"fedora")) {
+	print "rpm";
+	exit 0;
+    }
+    if(index($id_like,"rhel")) {
+	print "rpm";
+	exit 0;
+    }
+    if(index($id_like,"ubuntu")) {
+	print "deb";
+	exit 0;
+    }
+
+    print "unknown";
+    exit 0;
+}
+
 print $usage;
 exit 256;
-
 
 sub Extract
 {

@@ -67,3 +67,6 @@
 	when an error occurred but no 'err_msg' parameter was supplied.
 2025-02-26 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to v2.0.2.
+2025-04-21 Fred Gleason <fredg@paravelsystems.com>
+	* Added $ar_distro_package_type output to the ' AR_GET_DISTRO()'
+	autotools macro.
